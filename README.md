@@ -2,7 +2,7 @@
 Collection of demos in daily learning and working. Share more, learn more.
 平时学习、工作中研究的一些demo。  
 **代码同时同步到github和码云**
----
+
 ## Demo1 封装了一个ajax请求方法
 路径：`p1_my_ajax`  
 实现功能：
