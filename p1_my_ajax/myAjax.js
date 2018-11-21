@@ -25,7 +25,8 @@ function myAjax(options) {
             xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");//post请求添加请求头
             xhr.send(transformData(options.data));//发送请求，带处理过的参数
         } else if(method === 'GET') {
-            xhr.open(method, options.url + '?' + transformData(options.data));//get请求url需要拼接参数
+            let url = options.data ? options.url + '?' + transformData(options.data) : options.url;
+            xhr.open(method, url);//get请求url需要拼接参数
             xhr.send();
         } else {//其他请求方式
             xhr.open(method, options.url);
