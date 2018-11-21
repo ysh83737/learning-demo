@@ -19,18 +19,19 @@ function myAjax(options) {
     };
     return new Promise(function (resolve, reject) {
         let method = options.method ? options.method.toUpperCase() : 'GET';
-        let xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();//创建请求对象
         if (method === 'POST') {
-            xhr.open(method, options.url);
-            xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            xhr.send(transformData(options.data));
+            xhr.open(method, options.url);//连接服务器
+            xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");//post请求添加请求头
+            xhr.send(transformData(options.data));//发送请求，带处理过的参数
         } else if(method === 'GET') {
-            xhr.open(method, options.url + '?' + transformData(options.data));
+            xhr.open(method, options.url + '?' + transformData(options.data));//get请求url需要拼接参数
             xhr.send();
         } else {//其他请求方式
             xhr.open(method, options.url);
             xhr.send();
         };
+        //接收返回结果
         xhr.onreadystatechange = () => {
             if (xhr.readyState === 4) {
                 if (
