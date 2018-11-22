@@ -8,7 +8,7 @@ function test1() {
             resolve(1);
         },2000);
     };
-    new myPromise(fn1).then((val) => {
+    new MyPromise(fn1).then((val) => {
         console.log(val);
     });
 };
@@ -21,7 +21,7 @@ function test2() {
             reject(2);
         },1000);
     };
-    new myPromise(fn2).then((val) => {
+    new MyPromise(fn2).then((val) => {
         console.log(val);
     }, err => {
         console.log('rejected', err);
@@ -42,9 +42,9 @@ function test3() {
             resolve(2);
         },1000);
     };
-    new myPromise(fn1).then(val => {
+    new MyPromise(fn1).then(val => {
         console.log(val);
-        return new myPromise(fn2);
+        return new MyPromise(fn2);
     }).then(val => {
         console.log(val);
     });
@@ -60,9 +60,9 @@ function test4() {
         console.log('fn4===');
         resolve(44);
     };
-    new myPromise(fn3).then(res => {
+    new MyPromise(fn3).then(res => {
         console.log(res);
-        return new myPromise(fn4);
+        return new MyPromise(fn4);
     }).then(res => {
         console.log(res);
         return 55;
@@ -81,9 +81,9 @@ function test5() {
         console.log('fn4===');
         resolve(44);
     };
-    new myPromise(fn3).then(res => {
+    new MyPromise(fn3).then(res => {
         console.log(res);
-        return new myPromise(fn4);
+        return new MyPromise(fn4);
     }, err => console.log('then1==',err)).then(res => {
         console.log(res);
         return '55';
@@ -113,11 +113,84 @@ function test6() {
             resolve(6);
         }, 1000);
     };
-    let p5 = new myPromise(fn5),
-        p6 = new myPromise(fn6);
-    myPromise.all([p5, p6]).then(res => {
+    let p5 = new MyPromise(fn5),
+        p6 = new MyPromise(fn6);
+    MyPromise.all([p5, p6]).then(res => {
         console.log(res);
     }, err => {
         console.log(err);
+    });
+}
+
+//catch测试
+function test7() {
+    function fn7(resolve, reject) {
+        setTimeout(() => {
+            console.log('fn7执行');
+            reject('rejeted');
+        }, 1000);
+    };
+    new MyPromise(fn7).then(res => {
+        console.log(res);
+    }).catch(err => {
+        console.log('catch==', err);
+    });
+}
+//catch测试——链式调用reject状态的catch（冒泡）
+function test8() {
+    function fn7(resolve, reject) {
+        console.log('fn7执行');
+        reject('reject at fn7');
+        // setTimeout(() => {
+        //     console.log('fn7执行');
+        //     reject('reject at fn7');
+        // }, 1000);
+    };
+    function fn8(resolve, reject) {
+        console.log('fn8执行');
+        resolve(88);
+    };
+    new MyPromise(fn7).then(res => {
+        console.log(res);
+        return new MyPromise(fn8);
+    }, err => {
+        console.log('then1==', err);
+    }).then(res => {
+        console.log(res);
+        return 99;
+    }, err => {
+        console.log('then2==',err);
+    }).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    });
+}
+//上例异步
+function test9() {
+    function fn7(resolve, reject) {
+        setTimeout(() => {
+            console.log('fn7执行');
+            reject('reject at fn7');
+        }, 1000);
+    };
+    function fn8(resolve, reject) {
+        console.log('fn8执行');
+        resolve(88);
+    };
+    new MyPromise(fn7).then(res => {
+        console.log(res);
+        return new MyPromise(fn8);
+    }, err => {
+        console.log('then1==', err);
+    }).then(res => {
+        console.log(res);
+        return 99;
+    }, err => {
+        console.log('then2==',err);
+    }).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
     });
 }
