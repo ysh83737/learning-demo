@@ -8,6 +8,7 @@ Collection of demos in daily learning and working. Share more, learn more.
 实现功能：
 - 可以实现常用的get/post请求
 - 支持text/json/xml几种返回数据类型
+- 返回的是一个Promise对象
 
 参数：`options`
 - url: 请求地址

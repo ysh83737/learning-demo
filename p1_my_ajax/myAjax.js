@@ -6,16 +6,15 @@
  * @param {String} options.dataType 数据格式 json/text/xml
  * @param {String} options.method 请求方式，默认get
  * @param {Object} options.data 请求参数，json格式
- * [options={url, dataType, method}]
  * @returns {Object} 返回一个Promise对象
  */
 function myAjax(options) {
     function transformData(object){
         let oStr = '';
-    　　for(var key in object){
-    　　　　oStr += key+"="+object[key]+"&";
-    　　};
-    　　return oStr.slice(0,-1);
+        for(var key in object){
+            oStr += key+"="+object[key]+"&";
+        };
+        return oStr.slice(0,-1);
     };
     return new Promise(function (resolve, reject) {
         let method = options.method ? options.method.toUpperCase() : 'GET';
