@@ -13,7 +13,7 @@ class MyPromise {
                 this.__succ_res = arg;
                 this.status = 'success';
                 this.__queue.forEach(json => {
-                    console.log('队列执行resolve', json);
+                    // console.log('队列执行resolve', json);
                     json.resolve(...arg);
                 });
             // }, 0);
@@ -23,7 +23,7 @@ class MyPromise {
                 this.__err_res = arg;
                 this.status = 'error';
                 this.__queue.forEach(json => {
-                    console.log('队列执行reject', json);
+                    // console.log('队列执行reject', json);
                     json.reject(...arg);
                 });
             // }, 0);
@@ -59,7 +59,7 @@ class MyPromise {
             } else if (this.status === 'error') {
                 errBack(...this.__err_res);
             } else {
-                this.__queue.push({resolve: handle, reject: onRejected || rejFn});//reject的冒泡，当前Promise没有onRejected，则将下一个Promise的onRejected推入本队列
+                this.__queue.push({resolve: handle, reject: errBack});
             };
         })
     }
@@ -67,7 +67,7 @@ class MyPromise {
         if (this.status === 'error') {
             errHandler(...this.__err_res);
         } else {
-            this.__queue.push({reject: errHandler});
+            this.__queue.push({resolve: () => {}, reject: errHandler});//处理最后一个Promise的时候，队列resolve推入一个空函数，不造成影响，不会报错----如果没有，则会报错
         };
     }
 }
