@@ -35,8 +35,10 @@ class Promise2 {
                 }
             };
             function errBack(reason) {
-                reason = onRejected instanceof Function && onRejected(reason) || reason;
-                rejFn(reason);
+                // reason = onRejected instanceof Function && onRejected(reason) || reason;
+                // rejFn(reason);//这里会将reject一直传递下去——————no
+                onRejected(reason);
+                resFn();//这样处理，和原生一样，不影响后面的Promise——yes
             };
             if (this.status === 'succ') {
                 handle(...this.__succ_res);
