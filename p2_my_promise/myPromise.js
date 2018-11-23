@@ -7,34 +7,43 @@ class MyPromise {
         this.status = 'pending';    //标记处理的状态
         this.__queue = [];          //事件队列
         //箭头函数绑定了this，如果使用es5写法，需要定义一个替代的this
-        fn((...arg) => {
-            // setTimeout(() => {
-                    
+        try {
+            fn((...arg) => {
                 this.__succ_res = arg;
                 this.status = 'success';
                 this.__queue.forEach(json => {
-                    // console.log('队列执行resolve', json);
                     json.resolve(...arg);
                 });
-            // }, 0);
-        }, (...arg) => {
-            // setTimeout(() => {
-                    
+            }, (...arg) => {
                 this.__err_res = arg;
                 this.status = 'error';
                 this.__queue.forEach(json => {
-                    // console.log('队列执行reject', json);
                     json.reject(...arg);
                 });
-            // }, 0);
-        });
+            });
+        } catch(err) {
+            this.__err_res = [err];
+            this.status = 'error';
+            this.__queue.forEach(json => {
+                json.reject(...err);
+            });
+        };
     }
     then(onFulfilled, onRejected) {
         //箭头函数绑定了this，如果使用es5写法，需要定义一个替代的this
         return new MyPromise((resFn, rejFn) => {
             function handle(value) {
                 //then方法的onFulfilled有return时，使用return的值，没有则使用回调函数resolve的值
-                let returnVal = onFulfilled instanceof Function && onFulfilled(value) || value;
+                let returnVal = value;
+                if (onFulfilled instanceof Function) {
+                    try {
+                        returnVal = onFulfilled(value);
+                    } catch(err) {
+                        //代码错误处理
+                        rejFn(err);
+                        return;
+                    }
+                };
                 if (returnVal && returnVal['then'] instanceof Function) {//如果onFulfilled返回的是新Promise对象，则调用它的then方法
                     returnVal.then(res => {
                         resFn(res);
