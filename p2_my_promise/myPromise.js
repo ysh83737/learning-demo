@@ -92,7 +92,8 @@ MyPromise.all = (arr) => {
         let i = 0, result = [];
         next();
         function next() {
-            arr[i].then(res => {
+            //如果不是Promise对象，需要转换
+            MyPromise.resolve(arr[i]).then(res => {
                 result.push(res);
                 i++;
                 if (i === arr.length) {
@@ -104,6 +105,29 @@ MyPromise.all = (arr) => {
         };
     })
 };
+MyPromise.race = arr => {
+    if (!Array.isArray(arr)) {
+        throw new TypeError('参数应该是一个数组!');
+    };
+    return new MyPromise((resolve, reject) => {
+        let done = false;
+        arr.forEach(item => {
+            //如果不是Promise对象，需要转换
+            MyPromise.resolve(item).then(res => {
+                if (!done) {
+                    resolve(res);
+                    done = true;
+                };
+            }, err => {
+                if (!done) {
+                    reject(err);
+                    done = true;
+                };
+            });
+        })
+    })
+
+}
 MyPromise.resolve = (arg) => {
     if (typeof arg === 'undefined' || arg == null) {//无参数/null
         return new MyPromise((resolve) => {

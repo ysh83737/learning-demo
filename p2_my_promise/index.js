@@ -19,7 +19,7 @@ function renderBtns(testCount) {
         es6Div.appendChild(elem);
     };
 };
-window.onload = () => { renderBtns(25) };
+window.onload = () => { renderBtns(26) };
 
 
 //异步测试--resolve
@@ -527,5 +527,39 @@ function test25(_Promise) {
         console.log('catch==', err);
     }).finally(() => {
         console.log('finally func!')
+    });
+}
+
+//race方法测试
+test26.info = 'race方法测试';
+function test26(_Promise) {
+    function fn5(resolve, reject) {
+        setTimeout(() => {
+            let randNum = Math.random();
+            console.log('fn5执行');
+            if (randNum > 0.5) {
+                resolve('fn5 resovle==大于0.5');
+            } else {
+                reject('fn5 reject==少于0.5');
+            };
+        }, 2000);
+    };
+    function fn6(resolve, reject) {
+        setTimeout(() => {
+            let randNum = Math.random();
+            console.log('fn6执行');
+            if (randNum > 0.5) {
+                resolve('fn6 resovle==大于0.5');
+            } else {
+                reject('fn6 reject==少于0.5');
+            };
+        }, 1000);
+    };
+    let p5 = new _Promise(fn5),
+        p6 = new _Promise(fn6);
+    _Promise.race([p5, p6]).then(res => {
+        console.log(res);
+    }, err => {
+        console.log(err);
     });
 }
