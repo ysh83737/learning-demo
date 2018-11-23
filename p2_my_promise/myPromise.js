@@ -83,7 +83,7 @@ class MyPromise {
     finally(finalHandler) {
         return this.then(finalHandler, finalHandler);
     }
-}
+};
 MyPromise.all = (arr) => {
     if (!Array.isArray(arr)) {
         throw new TypeError('参数应该是一个数组!');
@@ -103,4 +103,30 @@ MyPromise.all = (arr) => {
             }, reject);
         };
     })
-}
+};
+MyPromise.resolve = (arg) => {
+    if (typeof arg === 'undefined' || arg == null) {//无参数/null
+        return new MyPromise((resolve) => {
+            resolve(arg);
+        });
+    } else if (arg instanceof MyPromise) {
+        return arg;
+    } else if (arg['then'] instanceof Function) {
+        return new MyPromise((resolve, reject) => {
+            arg.then((res) => {//调用其then方法，但转换出来的状态都是resolved
+                resolve(res);
+            }, err => {
+                resolve(err);
+            });
+        });
+    } else {
+        return new MyPromise(resolve => {
+            resolve(arg);
+        });
+    }
+};
+MyPromise.reject = (arg) => {
+    return new MyPromise((resolve, reject) => {
+        reject(arg);
+    });
+};

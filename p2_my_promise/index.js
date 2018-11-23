@@ -19,7 +19,7 @@ function renderBtns(testCount) {
         es6Div.appendChild(elem);
     };
 };
-window.onload = () => { renderBtns(17) };
+window.onload = () => { renderBtns(25) };
 
 
 //异步测试--resolve
@@ -405,6 +405,123 @@ function test17(_Promise) {
         resolve(1111);
     };
     new _Promise(fn11).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——是MyPromise对象
+test18.info = 'resolve方法测试——是MyPromise对象';
+function test18(_Promise) {
+    function fn12(resolve, reject) {
+        console.log('fn12执行');
+        resolve(1212);
+    };
+    _Promise.resolve(new _Promise(fn12)).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——是一个thenable对象（resolve）
+test19.info = 'resolve方法测试——是一个thenable对象（resolve）';
+function test19(_Promise) {
+    let thenable = {
+        then: function(resolve, reject) {
+            resolve('thenable resolved!');
+        }
+    };
+    _Promise.resolve(thenable).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——是一个thenable对象（reject）
+test20.info = 'resolve方法测试——是一个thenable对象（reject）';
+function test20(_Promise) {
+    let thenable = {
+        then: function(resolve, reject) {
+            reject('thenable rejectd!');
+        }
+    };
+    _Promise.resolve(thenable).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——参数不是具有then方法的对象，或根本就不是对象
+test21.info = 'resolve方法测试——不具有then方法';
+function test21(_Promise) {
+    _Promise.resolve('Have no then func').then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——无参数
+test22.info = 'resolve方法测试——无参数';
+function test22(_Promise) {
+    let p = _Promise.resolve();
+    // console.log('新Promise对象==', p);
+    p.then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——参数是null
+test23.info = 'resolve方法测试——参数是null';
+function test23(_Promise) {
+    let p = _Promise.resolve(null);
+    // console.log('新Promise对象==', p);
+    p.then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//resolve方法测试——参数是空字符串
+test24.info = 'resolve方法测试——参数是空字符串';
+function test24(_Promise) {
+    let p = _Promise.resolve('');
+    // console.log('新Promise对象==', p);
+    p.then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//reject方法测试
+test25.info = 'reject方法测试';
+function test25(_Promise) {
+    let p = _Promise.reject('reject方法');
+    p.then(res => {
         console.log(res);
     }).catch( err => {
         console.log('catch==', err);
