@@ -80,6 +80,9 @@ class MyPromise {
         // };
         return this.then(undefined, errHandler);
     }
+    finally(finalHandler) {
+        return this.then(finalHandler, finalHandler);
+    }
 }
 MyPromise.all = (arr) => {
     if (!Array.isArray(arr)) {

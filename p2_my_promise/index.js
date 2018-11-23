@@ -19,7 +19,7 @@ function renderBtns(testCount) {
         es6Div.appendChild(elem);
     };
 };
-window.onload = () => { renderBtns(14) };
+window.onload = () => { renderBtns(17) };
 
 
 //异步测试--resolve
@@ -358,5 +358,57 @@ function test14(_Promise) {
         console.log(res);
     }).catch( err => {
         console.log('catch==', err);
+    });
+}
+
+
+//finally测试——正常状态
+test15.info = 'finally测试——正常';
+function test15(_Promise) {
+    function fn11(resolve, reject) {
+        setTimeout(() => {
+            resolve(1111);
+        }, 1000);
+    };
+    new _Promise(fn11).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//finally测试——异步代码错误
+test16.info = 'finally测试——异步代码错误';
+function test16(_Promise) {
+    function fn11(resolve, reject) {
+        setTimeout(() => {
+            throw new Error('err@fn11');
+            resolve(1111);
+        }, 1000);
+    };
+    new _Promise(fn11).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
+    });
+}
+
+//finally测试——同步代码错误
+test17.info = 'finally测试——同步代码错误';
+function test17(_Promise) {
+    function fn11(resolve, reject) {
+        throw new Error('err@fn11');
+        resolve(1111);
+    };
+    new _Promise(fn11).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    }).finally(() => {
+        console.log('finally func!')
     });
 }
