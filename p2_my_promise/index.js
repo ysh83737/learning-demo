@@ -1,6 +1,19 @@
 //测试用例
+function renderBtns(testCount) {
+    let oDiv = document.getElementById('app');
+    for (let i=1; i<=testCount; i++) {
+        let elem = document.createElement("input");
+        elem.type = 'button';
+        elem.onclick = window[`test${i}`];
+        elem.value = window[`test${i}`].info;
+        oDiv.appendChild(elem);
+    };
+};
+window.onload = () => { renderBtns(10) };
+
 
 //异步测试--resolve
+test1.info = '异步测试--resolve';
 function test1() {
     function fn1(resolve, reject) {
         setTimeout(function() {
@@ -14,6 +27,7 @@ function test1() {
 };
 
 //异步测试--reject
+test2.info = '异步测试--reject';
 function test2() {
     function fn2(resolve, reject) {
         setTimeout(function() {
@@ -29,6 +43,7 @@ function test2() {
 };
 
 //同步写法测试
+test3.info = '同步写法测试';
 function test3() {
     function fn1(resolve, reject) {
         setTimeout(function() {
@@ -51,6 +66,7 @@ function test3() {
 };
 
 //链式调用--resolve
+test4.info = '链式调用--resolve';
 function test4() {
     function fn3(resolve, reject) {
         console.log('fn3===');
@@ -72,6 +88,7 @@ function test4() {
 };
 
 //链式调用--reject
+test5.info = '链式调用--reject';
 function test5() {
     function fn3(resolve, reject) {
         console.log('fn3===');
@@ -93,6 +110,7 @@ function test5() {
 };
 
 //all方法
+test6.info = 'all方法';
 function test6() {
     //随机调用resolve或reject
     function fn5(resolve, reject) {
@@ -101,9 +119,9 @@ function test6() {
             let randNum = Math.random();
             console.log(randNum);
             if (randNum > 0.5) {
-                resolve('大于0.5');
+                resolve('resovle==大于0.5');
             } else {
-                reject('少于0.5');
+                reject('reject==少于0.5');
             };
         }, 2000);
     };
@@ -123,6 +141,7 @@ function test6() {
 }
 
 //catch测试
+test7.info = 'catch测试';
 function test7() {
     function fn7(resolve, reject) {
         setTimeout(() => {
@@ -137,14 +156,11 @@ function test7() {
     });
 }
 //catch测试——链式调用reject状态的catch（冒泡）
+test8.info = 'catch测试——reject冒泡';
 function test8() {
     function fn7(resolve, reject) {
         console.log('fn7执行');
         reject('reject at fn7');
-        // setTimeout(() => {
-        //     console.log('fn7执行');
-        //     reject('reject at fn7');
-        // }, 1000);
     };
     function fn8(resolve, reject) {
         console.log('fn8执行');
@@ -153,13 +169,9 @@ function test8() {
     new MyPromise(fn7).then(res => {
         console.log(res);
         return new MyPromise(fn8);
-    }, err => {
-        console.log('then1==', err);
     }).then(res => {
         console.log(res);
         return 99;
-    }, err => {
-        console.log('then2==',err);
     }).then(res => {
         console.log(res);
     }).catch( err => {
@@ -167,6 +179,7 @@ function test8() {
     });
 }
 //上例异步
+test9.info = 'catch测试——异步reject冒泡';
 function test9() {
     function fn7(resolve, reject) {
         setTimeout(() => {
@@ -181,8 +194,31 @@ function test9() {
     new MyPromise(fn7).then(res => {
         console.log(res);
         return new MyPromise(fn8);
-    }, err => {
-        console.log('then1==', err);
+    }).then(res => {
+        console.log(res);
+        return 99;
+    }).then(res => {
+        console.log(res);
+    }).catch( err => {
+        console.log('catch==', err);
+    });
+}
+//reject冒泡
+test10.info = 'reject冒泡';
+function test10() {
+    function fn7(resolve, reject) {
+        setTimeout(() => {
+            console.log('fn7执行');
+            reject('reject at fn7');
+        }, 1000);
+    };
+    function fn8(resolve, reject) {
+        console.log('fn8执行');
+        resolve(88);
+    };
+    new MyPromise(fn7).then(res => {
+        console.log(res);
+        return new MyPromise(fn8);
     }).then(res => {
         console.log(res);
         return 99;
