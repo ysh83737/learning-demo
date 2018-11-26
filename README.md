@@ -58,3 +58,13 @@ Collection of demos in daily learning and working. Share more, learn more.
 - 当写到一个新功能时，发现在这个新功能里，上一个功能有遗漏，这时候需要了解他们俩之间的关系，还要重新理解上一个功能；在这种重复当中，无疑又加深了一层理解；
 - then/catch方法是最难的，要不停地修修补补；
 - 最后所有功能都实现了，才想起来一个关键点“Promise状态一旦确定，不能再改变”，又添加了一些逻辑才得以解决。因此，这个过程，难以做到滴水不漏，或许现在的代码里还有些隐藏问题没被发现。
+
+### 参考文章
+- [ECMAScript 6 入门 - Promise 对象][1]
+- [es6 promise源码实现][2]
+- [手把手教你实现一个完整的 Promise][3]
+
+
+[1]: http://es6.ruanyifeng.com/#docs/promise
+[2]: https://segmentfault.com/a/1190000006103601
+[3]: https://www.cnblogs.com/huansky/p/6064402.html
