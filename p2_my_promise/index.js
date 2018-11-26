@@ -19,7 +19,7 @@ function renderBtns(testCount) {
         es6Div.appendChild(elem);
     };
 };
-window.onload = () => { renderBtns(26) };
+window.onload = () => { renderBtns(27) };
 
 
 //异步测试--resolve
@@ -536,7 +536,7 @@ function test26(_Promise) {
     function fn5(resolve, reject) {
         setTimeout(() => {
             let randNum = Math.random();
-            console.log('fn5执行');
+            console.log('fn5延迟2秒执行');
             if (randNum > 0.5) {
                 resolve('fn5 resovle==大于0.5');
             } else {
@@ -547,7 +547,7 @@ function test26(_Promise) {
     function fn6(resolve, reject) {
         setTimeout(() => {
             let randNum = Math.random();
-            console.log('fn6执行');
+            console.log('fn6延迟1秒执行');
             if (randNum > 0.5) {
                 resolve('fn6 resovle==大于0.5');
             } else {
@@ -558,6 +558,29 @@ function test26(_Promise) {
     let p5 = new _Promise(fn5),
         p6 = new _Promise(fn6);
     _Promise.race([p5, p6]).then(res => {
+        console.log(res);
+    }, err => {
+        console.log(err);
+    });
+}
+
+//Promise状态多次改变
+test27.info = 'Promise状态多次改变';
+function test27(_Promise) {
+    function fn13(resolve, reject) {
+        let count = 1,
+            stopId = setInterval(() => {
+                let isEven = count % 2 === 0;//是否偶数 偶数resolve，基数reject
+                if (isEven) {
+                    resolve(`resolve===${count}`);
+                } else {
+                    reject(`reject===${count}`);
+                };
+                count++;
+                if (count > 5) clearInterval(stopId);
+            }, 1000);
+    };
+    new _Promise(fn13).then(res => {
         console.log(res);
     }, err => {
         console.log(err);

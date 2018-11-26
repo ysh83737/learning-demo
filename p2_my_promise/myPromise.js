@@ -7,20 +7,42 @@ class MyPromise {
         this.status = 'pending';    //标记处理的状态
         this.__queue = [];          //事件队列
         //箭头函数绑定了this，如果使用es5写法，需要定义一个替代的this
-        try {
-            fn((...arg) => {
-                this.__succ_res = arg;
-                this.status = 'success';
-                this.__queue.forEach(json => {
+        let _this = this;
+        function resolver(...arg) {
+            if (_this.status === 'pending') {
+                //如果状态已经改变，不再执行本代码
+                _this.__succ_res = arg;
+                _this.status = 'success';
+                _this.__queue.forEach(json => {
                     json.resolve(...arg);
                 });
-            }, (...arg) => {
-                this.__err_res = arg;
-                this.status = 'error';
-                this.__queue.forEach(json => {
+            };
+        };
+        function rejecter(...arg) {
+            if (_this.status === 'pending') {
+                //如果状态已经改变，不再执行本代码
+                _this.__err_res = arg;
+                _this.status = 'error';
+                _this.__queue.forEach(json => {
                     json.reject(...arg);
                 });
-            });
+            };
+        }
+        try {
+            // fn((...arg) => {
+            //     this.__succ_res = arg;
+            //     this.status = 'success';
+            //     this.__queue.forEach(json => {
+            //         json.resolve(...arg);
+            //     });
+            // }, (...arg) => {
+            //     this.__err_res = arg;
+            //     this.status = 'error';
+            //     this.__queue.forEach(json => {
+            //         json.reject(...arg);
+            //     });
+            // });
+            fn(resolver, rejecter);
         } catch(err) {
             this.__err_res = [err];
             this.status = 'error';
@@ -137,10 +159,10 @@ MyPromise.resolve = (arg) => {
         return arg;
     } else if (arg['then'] instanceof Function) {
         return new MyPromise((resolve, reject) => {
-            arg.then((res) => {//调用其then方法，但转换出来的状态都是resolved
+            arg.then((res) => {
                 resolve(res);
             }, err => {
-                resolve(err);
+                reject(err);
             });
         });
     } else {
