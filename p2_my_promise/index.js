@@ -19,11 +19,11 @@ function renderBtns(testCount) {
         es6Div.appendChild(elem);
     };
 };
-window.onload = () => { renderBtns(27) };
+window.onload = () => { renderBtns(29) };
 
 
 //异步测试--resolve
-test1.info = '异步测试--resolve';
+test1.info = '1 异步测试--resolve';
 function test1(_Promise) {
     function fn1(resolve, reject) {
         setTimeout(function() {
@@ -37,7 +37,7 @@ function test1(_Promise) {
 };
 
 //异步测试--reject
-test2.info = '异步测试--reject';
+test2.info = '2 异步测试--reject';
 function test2(_Promise) {
     function fn2(resolve, reject) {
         setTimeout(function() {
@@ -53,7 +53,7 @@ function test2(_Promise) {
 };
 
 //同步写法测试
-test3.info = '同步写法测试';
+test3.info = '3 同步写法测试';
 function test3(_Promise) {
     function fn1(resolve, reject) {
         setTimeout(function() {
@@ -76,7 +76,7 @@ function test3(_Promise) {
 };
 
 //链式调用--resolve
-test4.info = '链式调用--resolve';
+test4.info = '4 链式调用--resolve';
 function test4(_Promise) {
     function fn3(resolve, reject) {
         console.log('fn3===');
@@ -98,7 +98,7 @@ function test4(_Promise) {
 };
 
 //链式调用--reject
-test5.info = '链式调用--reject';
+test5.info = '5 链式调用--reject';
 function test5(_Promise) {
     function fn3(resolve, reject) {
         console.log('fn3===');
@@ -120,7 +120,7 @@ function test5(_Promise) {
 };
 
 //all方法
-test6.info = 'all方法';
+test6.info = '6 all方法';
 function test6(_Promise) {
     //随机调用resolve或reject
     function fn5(resolve, reject) {
@@ -151,7 +151,7 @@ function test6(_Promise) {
 }
 
 //catch测试
-test7.info = 'catch测试';
+test7.info = '7 catch测试';
 function test7(_Promise) {
     function fn7(resolve, reject) {
         setTimeout(() => {
@@ -166,7 +166,7 @@ function test7(_Promise) {
     });
 }
 //catch测试——链式调用reject状态的catch（冒泡）
-test8.info = 'catch测试——reject冒泡';
+test8.info = '8 catch测试——reject冒泡';
 function test8(_Promise) {
     function fn7(resolve, reject) {
         console.log('fn7执行');
@@ -189,7 +189,7 @@ function test8(_Promise) {
     });
 }
 //上例异步
-test9.info = 'catch测试——异步reject冒泡';
+test9.info = '9 catch测试——异步reject冒泡';
 function test9(_Promise) {
     function fn7(resolve, reject) {
         setTimeout(() => {
@@ -214,7 +214,7 @@ function test9(_Promise) {
     });
 }
 //reject冒泡
-test10.info = 'reject冒泡';
+test10.info = '10 reject冒泡';
 function test10(_Promise) {
     function fn7(resolve, reject) {
         setTimeout(() => {
@@ -242,7 +242,7 @@ function test10(_Promise) {
 }
 
 //catch测试——代码错误捕获
-test11.info = 'catch测试——代码错误捕获';
+test11.info = '11 catch测试——代码错误捕获';
 function test11(_Promise) {
     function fn9(resolve, reject) {
         throw new Error('err@fn9');
@@ -270,7 +270,7 @@ function test11(_Promise) {
 }
 
 //catch测试——代码错误捕获（异步）
-test12.info = 'catch测试——代码错误捕获（异步）';
+test12.info = '12 catch测试——代码错误捕获（异步）';
 function test12(_Promise) {
     function fn9(resolve, reject) {
         setTimeout(() => {
@@ -300,7 +300,7 @@ function test12(_Promise) {
 }
 
 //catch测试——then代码错误捕获
-test13.info = 'catch测试——then回调代码错误捕获';
+test13.info = '13 catch测试——then回调代码错误捕获';
 function test13(_Promise) {
     function fn9(resolve, reject) {
         setTimeout(() => {
@@ -333,7 +333,7 @@ function test13(_Promise) {
 }
 
 //catch测试——代码错误catch捕获——提示会更加详细
-test14.info = 'catch测试——代码错误catch捕获';
+test14.info = '14 catch测试——代码错误catch捕获';
 function test14(_Promise) {
     function fn9(resolve, reject) {
         setTimeout(() => {
@@ -363,7 +363,7 @@ function test14(_Promise) {
 
 
 //finally测试——正常状态
-test15.info = 'finally测试——正常';
+test15.info = '15 finally测试——正常';
 function test15(_Promise) {
     function fn11(resolve, reject) {
         setTimeout(() => {
@@ -380,7 +380,7 @@ function test15(_Promise) {
 }
 
 //finally测试——异步代码错误
-test16.info = 'finally测试——异步代码错误';
+test16.info = '16 finally测试——异步代码错误';
 function test16(_Promise) {
     function fn11(resolve, reject) {
         setTimeout(() => {
@@ -398,7 +398,7 @@ function test16(_Promise) {
 }
 
 //finally测试——同步代码错误
-test17.info = 'finally测试——同步代码错误';
+test17.info = '17 finally测试——同步代码错误';
 function test17(_Promise) {
     function fn11(resolve, reject) {
         throw new Error('err@fn11');
@@ -414,7 +414,7 @@ function test17(_Promise) {
 }
 
 //resolve方法测试——是MyPromise对象
-test18.info = 'resolve方法测试——是MyPromise对象';
+test18.info = '18 resolve方法测试——是MyPromise对象';
 function test18(_Promise) {
     function fn12(resolve, reject) {
         console.log('fn12执行');
@@ -430,7 +430,7 @@ function test18(_Promise) {
 }
 
 //resolve方法测试——是一个thenable对象（resolve）
-test19.info = 'resolve方法测试——是一个thenable对象（resolve）';
+test19.info = '19 resolve方法测试——是一个thenable对象（resolve）';
 function test19(_Promise) {
     let thenable = {
         then: function(resolve, reject) {
@@ -447,7 +447,7 @@ function test19(_Promise) {
 }
 
 //resolve方法测试——是一个thenable对象（reject）
-test20.info = 'resolve方法测试——是一个thenable对象（reject）';
+test20.info = '20 resolve方法测试——是一个thenable对象（reject）';
 function test20(_Promise) {
     let thenable = {
         then: function(resolve, reject) {
@@ -464,7 +464,7 @@ function test20(_Promise) {
 }
 
 //resolve方法测试——参数不是具有then方法的对象，或根本就不是对象
-test21.info = 'resolve方法测试——不具有then方法';
+test21.info = '21 resolve方法测试——不具有then方法';
 function test21(_Promise) {
     _Promise.resolve('Have no then func').then(res => {
         console.log(res);
@@ -476,7 +476,7 @@ function test21(_Promise) {
 }
 
 //resolve方法测试——无参数
-test22.info = 'resolve方法测试——无参数';
+test22.info = '22 resolve方法测试——无参数';
 function test22(_Promise) {
     let p = _Promise.resolve();
     // console.log('新Promise对象==', p);
@@ -490,7 +490,7 @@ function test22(_Promise) {
 }
 
 //resolve方法测试——参数是null
-test23.info = 'resolve方法测试——参数是null';
+test23.info = '23 resolve方法测试——参数是null';
 function test23(_Promise) {
     let p = _Promise.resolve(null);
     // console.log('新Promise对象==', p);
@@ -504,7 +504,7 @@ function test23(_Promise) {
 }
 
 //resolve方法测试——参数是空字符串
-test24.info = 'resolve方法测试——参数是空字符串';
+test24.info = '24 resolve方法测试——参数是空字符串';
 function test24(_Promise) {
     let p = _Promise.resolve('');
     // console.log('新Promise对象==', p);
@@ -518,7 +518,7 @@ function test24(_Promise) {
 }
 
 //reject方法测试
-test25.info = 'reject方法测试';
+test25.info = '25 reject方法测试';
 function test25(_Promise) {
     let p = _Promise.reject('reject方法');
     p.then(res => {
@@ -531,7 +531,7 @@ function test25(_Promise) {
 }
 
 //race方法测试
-test26.info = 'race方法测试';
+test26.info = '26 race方法测试';
 function test26(_Promise) {
     function fn5(resolve, reject) {
         setTimeout(() => {
@@ -565,7 +565,7 @@ function test26(_Promise) {
 }
 
 //Promise状态多次改变
-test27.info = 'Promise状态多次改变';
+test27.info = '27 Promise状态多次改变';
 function test27(_Promise) {
     function fn13(resolve, reject) {
         let count = 1,
@@ -584,5 +584,63 @@ function test27(_Promise) {
         console.log(res);
     }, err => {
         console.log(err);
+    });
+}
+
+//then回调返回Promise对象
+test28.info = '28 then回调返回Promise对象（reject）';
+function test28(_Promise) {
+    function fn1(resolve, reject) {
+        resolve(1);
+    };
+    function fn2(resolve, reject) {
+        reject(2);
+    };
+    new _Promise(fn1).then(val => {
+        console.log('res1==', val);
+        return new _Promise(fn2);
+    }, err => {
+        console.log('err1==',err);
+    }).then(val => {
+        console.log('res2==', val);
+        return 33;
+    }, err => {
+        console.log('err2==', err);
+        return 44;
+    }).then((val) => {
+        console.log('res3==', val);
+    }, err => {
+        console.log('err3==', err);
+    }).catch(err => {
+        console.log('catch==', err);
+    });
+}
+
+//then方法reject回调返回Promise对象
+test29.info = '29 then方法reject回调返回Promise对象';
+function test29(_Promise) {
+    function fn1(resolve, reject) {
+        reject(1);
+    };
+    function fn2(resolve, reject) {
+        reject(2);
+    };
+    new _Promise(fn1).then(val => {
+        console.log('res1==', val);
+    }, err => {
+        console.log('err1==',err);
+        return new _Promise(fn2);
+    }).then(val => {
+        console.log('res2==', val);
+        return 33;
+    }, err => {
+        console.log('err2==', err);
+        return 44;
+    }).then((val) => {
+        console.log('res3==', val);
+    }, err => {
+        console.log('err3==', err);
+    }).catch(err => {
+        console.log('catch==', err);
     });
 }

@@ -27,21 +27,8 @@ class MyPromise {
                     json.reject(...arg);
                 });
             };
-        }
+        };
         try {
-            // fn((...arg) => {
-            //     this.__succ_res = arg;
-            //     this.status = 'success';
-            //     this.__queue.forEach(json => {
-            //         json.resolve(...arg);
-            //     });
-            // }, (...arg) => {
-            //     this.__err_res = arg;
-            //     this.status = 'error';
-            //     this.__queue.forEach(json => {
-            //         json.reject(...arg);
-            //     });
-            // });
             fn(resolver, rejecter);
         } catch(err) {
             this.__err_res = [err];
@@ -69,20 +56,36 @@ class MyPromise {
                 if (returnVal && returnVal['then'] instanceof Function) {//如果onFulfilled返回的是新Promise对象，则调用它的then方法
                     returnVal.then(res => {
                         resFn(res);
+                    }, err => {
+                        rejFn(err);
                     });
                 } else {
                     resFn(returnVal);
-                }
+                };
             };
             function errBack(reason) {
-                // reason = onRejected instanceof Function && onRejected(reason) || reason;
-                // rejFn(reason);//这里会将reject一直传递下去——————no
+                //如果有onRejected回调，执行一遍
                 if (onRejected instanceof Function) {
-                    //冒泡处理，如果当前then有onRejected方法，则不需要冒泡，直接使用，而且要调用下一个Promise的resolve，不停止后面的代码
-                    onRejected(reason);
-                    resFn();//这样处理，和原生一样，不影响后面的Promise——yes-----处理异步操作的时候（then先于回调执行），还是不能正确处理，前面的reject会影响后面的继续执行
-                } else {
-                    rejFn(reason);//如果then没有传入onRejected方法，则使用下一个Promise的then，一直到catch--冒泡
+                    try {
+                        let returnVal = onRejected(reason);
+                        //执行onRejected回调有返回，判断是否thenable对象
+                        if (typeof returnVal !== 'undefined' && returnVal['then'] instanceof Function) {
+                            returnVal.then(res => {
+                                resFn(res);
+                            }, err => {
+                                rejFn(err);
+                            });
+                        } else {
+                            //不是thenable的，直接丢给新对象resFn回调
+                            resFn(returnVal);
+                        };
+                    } catch(err) {
+                        //代码错误处理
+                        rejFn(err);
+                        return;
+                    }
+                } else {//传给下一个reject回调
+                    rejFn(reason);
                 };
             };
             if (this.status === 'success') {
@@ -95,11 +98,6 @@ class MyPromise {
         })
     }
     catch(errHandler) {
-        // if (this.status === 'error') {
-        //     errHandler(...this.__err_res);
-        // } else {
-        //     this.__queue.push({resolve: () => {}, reject: errHandler});//处理最后一个Promise的时候，队列resolve推入一个空函数，不造成影响，不会报错----如果没有，则会报错
-        // };
         return this.then(undefined, errHandler);
     }
     finally(finalHandler) {
@@ -114,7 +112,7 @@ MyPromise.all = (arr) => {
         let i = 0, result = [];
         next();
         function next() {
-            //如果不是Promise对象，需要转换
+            //如果不是MyPromise对象，需要转换
             MyPromise.resolve(arr[i]).then(res => {
                 result.push(res);
                 i++;
@@ -134,7 +132,7 @@ MyPromise.race = arr => {
     return new MyPromise((resolve, reject) => {
         let done = false;
         arr.forEach(item => {
-            //如果不是Promise对象，需要转换
+            //如果不是MyPromise对象，需要转换
             MyPromise.resolve(item).then(res => {
                 if (!done) {
                     resolve(res);
