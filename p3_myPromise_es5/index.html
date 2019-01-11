@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自己封装的Promise</title>
+    <script src="./myPromise_es5.js"></script>
+    <script src="./index.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        .part {
+            display: inline-block;
+            width: 49%;
+            height: 90%;
+            vertical-align: top;
+        }
+        .test_btn {
+            background-color: aqua;
+            border-radius: 10px;
+        }
+        .my_promise,
+        .native_promise {
+            height: 50%;
+        }
+        input {
+            height: 30px; 
+            margin: 10px 10px;
+            background: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input:hover {
+            opacity: 0.9;
+        }
+        .pro_item {
+            /* background-color: cornflowerblue; */
+            border-radius: 10px;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            color: white;
+        }
+        .pro_item.my_promise {
+            background-color: cornflowerblue;
+        }
+        .pro_item.my_promise .title {
+            color: cornflowerblue;
+        }
+        .pro_item.native_promise {
+            background-color:forestgreen;
+        }
+        .pro_item.native_promise .title {
+            color: forestgreen;
+        }
+        .pro_item .title {
+            border: 1px solid white;
+            border-radius: 10px;
+            padding: 5px 10px;
+            overflow: auto;
+            background-color: white;
+        }
+        .log_output {
+            border: 1px solid white;
+            border-radius: 10px;
+            padding: 5px 10px;
+            height: 70%;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="operation_btns" class="part test_btn"></div>
+    <div class="part result_area">
+        <div class="pro_item my_promise">
+            <p class="title">自己封装的MyPromise</p>
+            <p id="my_pro_test_info" class="test_info">结果将在下面显示：</p>
+            <div id="res_my_pro" class="log_output"></div>
+        </div>
+        <div class="pro_item native_promise">
+            <p class="title">原生Promise</p>
+            <p id="native_pro_test_info" class="test_info">结果将在下面显示：</p>
+            <div id="res_native_pro" class="log_output"></div>
+        </div>
+    </div>
+</body>
+</html>

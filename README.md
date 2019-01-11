@@ -48,7 +48,7 @@ Collection of demos in daily learning and working. Share more, learn more.
 - 代码是es6写的，会考虑再用es5写，以便于应用到es5项目中；es5写的话，不用箭头函数，要考虑this的问题
 
 ### 测试： `index.html`
-- 这个页面中包含了27个测试例子，分别测试了各项功能、各个方法，还有一些特殊情况测试；或许还有有遗漏的，感兴趣自己可以玩一下；
+- 这个页面中包含了29个测试例子，分别测试了各项功能、各个方法，还有一些特殊情况测试；或许还有有遗漏的，感兴趣自己可以玩一下；
 - 可视化的操作，方便测试，每次运行一个例子，打开调试台即可看到结果；建议同时打开 `index.js` 边看代码边玩；
 - 同一套代码，上面的 `MyPromise` 的运行结果，下面是原生 `Promise` 运行的结果；
 
@@ -69,3 +69,24 @@ Collection of demos in daily learning and working. Share more, learn more.
 [1]: http://es6.ruanyifeng.com/#docs/promise
 [2]: https://segmentfault.com/a/1190000006103601
 [3]: https://www.cnblogs.com/huansky/p/6064402.html
+
+## demo3 es5语法封装一个Promise对象
+
+本项目是上一个项目demo2的改写，用es5语法写出来的，功能完全一致，测试用例有修改，换了一种更清晰的呈现方式
+
+### 路径： p3_my_promise_es5
+
+### 实现功能：
+与demo2一致
+
+### 不足之处：
+- 代码的错误被catch捕获时，提示的信息（捕获的错误对象）比原生Promise要多
+
+### 测试： `index.html`
+- 这个页面中包含了30个测试例子，在前面的基础上添加了一个，分别测试了各项功能、各个方法，还有一些特殊情况测试；或许还有有遗漏的，感兴趣自己可以玩一下；
+- 更加友好的可视化的操作，方便测试，每次运行一个例子，右边面板可看到结果；
+- 自定义了`console.mylog()`方法用来输出结果，第一个参数是当前使用的`Promise`对象，用以区分输出，查看代码时可忽略，后面的参数都是输出结果，与系统`console.log()`相似；
+- 建议同时打开 `index.js` 边看代码边玩；
+- 同一套代码，上面的 `MyPromise` 的运行结果，下面是原生 `Promise` 运行的结果；
+
+> 例子12、16不能输出到面板中，因为未捕获的这是异步代码报错，可在控制台看到错误输出。
