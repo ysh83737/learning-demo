@@ -45,7 +45,7 @@ window.onload = () => {
 };
 
 //同步测试--resolve
-test0.info = '0 异步测试--resolve';
+test0.info = '0 同步测试--resolve';
 function test0(_Promise) {
     function fn1(resolve, reject) {
         console.mylog(_Promise, 'fn1执行');
