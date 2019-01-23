@@ -9,24 +9,28 @@ class MyPromise {
         //箭头函数绑定了this，如果使用es5写法，需要定义一个替代的this
         let _this = this;
         function resolver(...arg) {
-            if (_this.status === 'pending') {
-                //如果状态已经改变，不再执行本代码
-                _this.__succ_res = arg;
-                _this.status = 'success';
-                _this.__queue.forEach(json => {
-                    json.resolve(...arg);
-                });
-            };
+            setTimeout(() => {
+                if (_this.status === 'pending') {
+                    //如果状态已经改变，不再执行本代码
+                    _this.__succ_res = arg;
+                    _this.status = 'success';
+                    _this.__queue.forEach(json => {
+                        json.resolve(...arg);
+                    });
+                };                
+            }, 0);
         };
         function rejecter(...arg) {
-            if (_this.status === 'pending') {
-                //如果状态已经改变，不再执行本代码
-                _this.__err_res = arg;
-                _this.status = 'error';
-                _this.__queue.forEach(json => {
-                    json.reject(...arg);
-                });
-            };
+            setTimeout(() => {
+                if (_this.status === 'pending') {
+                    //如果状态已经改变，不再执行本代码
+                    _this.__err_res = arg;
+                    _this.status = 'error';
+                    _this.__queue.forEach(json => {
+                        json.reject(...arg);
+                    });
+                };                
+            }, 0);
         };
         try {
             fn(resolver, rejecter);

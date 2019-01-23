@@ -677,4 +677,21 @@ function test29(_Promise) {
     }).catch(err => {
         console.mylog(_Promise, 'catch==', err);
     });
-}
+};
+
+//then方法的异步执行
+test30.info = '30 then方法的异步执行';
+function test30(_Promise) {
+    function fn30(resolve, reject) {
+        console.mylog(_Promise, 'running fn30');
+        resolve('resolve @fn30')
+    };
+    console.mylog(_Promise, 'start');
+    let p = new _Promise(fn30);
+    p.then(res => {
+        console.mylog(_Promise, res);
+    }).catch(err => {
+        console.mylog(_Promise, 'err=', err);
+    });
+    console.mylog(_Promise, 'end');
+};

@@ -10,22 +10,26 @@ function MyPromise(callback) {
 
     var _this = this;
     function resolver(res) {
-        if (_this.status === PENDING) {
-            _this.status = FULFILLED;
-            _this.__succ__res = res;
-            _this.__queue.forEach(item => {
-                item.resolve(res);
-            });
-        };
+        setTimeout(() => {
+            if (_this.status === PENDING) {
+                _this.status = FULFILLED;
+                _this.__succ__res = res;
+                _this.__queue.forEach(item => {
+                    item.resolve(res);
+                });
+            };            
+        }, 0);
     };
     function rejecter(rej) {
-        if (_this.status === PENDING) {
-            _this.status = REJECTED;
-            _this.__err__res = rej;
-            _this.__queue.forEach(item => {
-                item.reject(rej);
-            });
-        };
+        setTimeout(() => {
+            if (_this.status === PENDING) {
+                _this.status = REJECTED;
+                _this.__err__res = rej;
+                _this.__queue.forEach(item => {
+                    item.reject(rej);
+                });
+            };            
+        }, 0);
     };
     try {
         callback(resolver, rejecter);

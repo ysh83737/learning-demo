@@ -1,38 +1,72 @@
 //测试用例
-function renderBtns(testCount) {
-    let myDiv = document.getElementById('my-promise'),
-        es6Div = document.getElementById('es6-promise');
-    //我的Promise
-    for (let i=1; i<=testCount; i++) {
-        let elem = document.createElement("input");
-        elem.type = 'button';
-        elem.onclick = window[`test${i}`].bind(null, MyPromise);
-        elem.value = window[`test${i}`].info;
-        myDiv.appendChild(elem);
+function myLog(_Promise, ...msg) {
+    let outputContainer = null, mark = null;
+    if (_Promise === Promise) {
+        outputContainer = document.getElementById('res_native_pro');
+        mark = 'nativePro';
+    } else {
+        outputContainer = document.getElementById('res_my_pro');
+        mark = 'myPro';
     };
-    //原生Promise
-    for (let i=1; i<=testCount; i++) {
+    let elem = document.createElement('p');
+    elem.innerText = msg.join(' ');
+    outputContainer.appendChild(elem);
+};
+function createBtns(testCount = 100) {
+    let container = document.getElementById('operation_btns');
+    for (let i = 0; i < testCount; i++) {
+        if (typeof window[`test${i}`] === 'undefined') return;
+
         let elem = document.createElement("input");
         elem.type = 'button';
-        elem.onclick = window[`test${i}`].bind(null, Promise);
+        elem.onclick = function() {//同时运行
+            let nativeProInfo = document.getElementById('native_pro_test_info'),
+                myproInfo = document.getElementById('my_pro_test_info'),
+                nativeProOutput = document.getElementById('res_native_pro'),
+                myProOutput = document.getElementById('res_my_pro'),
+                testInfo = window[`test${i}`].info;
+            nativeProInfo.innerText = `【${testInfo}】的结果：`;
+            myproInfo.innerText = `【${testInfo}】的结果：`;
+            nativeProOutput.innerHTML = '';
+            myProOutput.innerHTML = '';
+            window[`test${i}`](MyPromise, i);
+            window[`test${i}`](Promise, i);
+        };
         elem.value = window[`test${i}`].info;
-        es6Div.appendChild(elem);
+        container.appendChild(elem);
     };
 };
-window.onload = () => { renderBtns(29) };
+window.onload = () => {
+    //改写系统日志打印
+    window.console.mylog = function(...msg) {
+        myLog(...msg);
+    };
+    createBtns();
+};
 
+//同步测试--resolve
+test0.info = '0 同步测试--resolve';
+function test0(_Promise) {
+    function fn1(resolve, reject) {
+        console.mylog(_Promise, 'fn1执行');
+        resolve(1);
+    };
+    new _Promise(fn1).then((val) => {
+        console.mylog(_Promise, val);
+    });
+};
 
 //异步测试--resolve
 test1.info = '1 异步测试--resolve';
 function test1(_Promise) {
     function fn1(resolve, reject) {
         setTimeout(function() {
-            console.log('fn1执行');
+            console.mylog(_Promise, 'fn1执行');
             resolve(1);
         },2000);
     };
     new _Promise(fn1).then((val) => {
-        console.log(val);
+        console.mylog(_Promise, val);
     });
 };
 
@@ -41,14 +75,14 @@ test2.info = '2 异步测试--reject';
 function test2(_Promise) {
     function fn2(resolve, reject) {
         setTimeout(function() {
-            console.log('fn2执行');
+            console.mylog(_Promise, 'fn2执行');
             reject(2);
         },1000);
     };
     new _Promise(fn2).then((val) => {
-        console.log(val);
+        console.mylog(_Promise, val);
     }, err => {
-        console.log('rejected', err);
+        console.mylog(_Promise, 'rejected', err);
     });
 };
 
@@ -57,21 +91,21 @@ test3.info = '3 同步写法测试';
 function test3(_Promise) {
     function fn1(resolve, reject) {
         setTimeout(function() {
-            console.log('fn1执行');
+            console.mylog(_Promise, 'fn1执行');
             resolve(1);
         },2000);
     };
     function fn2(resolve, reject) {
         setTimeout(function() {
-            console.log('fn2执行');
+            console.mylog(_Promise, 'fn2执行');
             resolve(2);
         },1000);
     };
     new _Promise(fn1).then(val => {
-        console.log(val);
+        console.mylog(_Promise, val);
         return new _Promise(fn2);
     }).then(val => {
-        console.log(val);
+        console.mylog(_Promise, val);
     });
 };
 
@@ -79,21 +113,21 @@ function test3(_Promise) {
 test4.info = '4 链式调用--resolve';
 function test4(_Promise) {
     function fn3(resolve, reject) {
-        console.log('fn3===');
+        console.mylog(_Promise, 'fn3===');
         resolve(33);
     };
     function fn4(resolve, reject) {
-        console.log('fn4===');
+        console.mylog(_Promise, 'fn4===');
         resolve(44);
     };
     new _Promise(fn3).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn4);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 55;
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     });
 };
 
@@ -101,22 +135,22 @@ function test4(_Promise) {
 test5.info = '5 链式调用--reject';
 function test5(_Promise) {
     function fn3(resolve, reject) {
-        console.log('fn3===');
+        console.mylog(_Promise, 'fn3===');
         reject('reject at fn3');
     };
     function fn4(resolve, reject) {
-        console.log('fn4===');
+        console.mylog(_Promise, 'fn4===');
         resolve(44);
     };
     new _Promise(fn3).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn4);
-    }, err => console.log('then1==',err)).then(res => {
-        console.log(res);
+    }, err => console.mylog(_Promise, 'then1==',err)).then(res => {
+        console.mylog(_Promise, res);
         return '55';
-    }, err => console.log('then2==',err)).then(res => {
-        console.log(res);
-    }, err => console.log('then3==',err));
+    }, err => console.mylog(_Promise, 'then2==',err)).then(res => {
+        console.mylog(_Promise, res);
+    }, err => console.mylog(_Promise, 'then3==',err));
 };
 
 //all方法
@@ -125,9 +159,9 @@ function test6(_Promise) {
     //随机调用resolve或reject
     function fn5(resolve, reject) {
         setTimeout(() => {
-            console.log('fn5执行');
+            console.mylog(_Promise, 'fn5执行');
             let randNum = Math.random();
-            console.log(randNum);
+            console.mylog(_Promise, randNum);
             if (randNum > 0.5) {
                 resolve('resovle==大于0.5');
             } else {
@@ -137,16 +171,16 @@ function test6(_Promise) {
     };
     function fn6(resolve, reject) {
         setTimeout(() => {
-            console.log('fn6执行');
+            console.mylog(_Promise, 'fn6执行');
             resolve(6);
         }, 1000);
     };
     let p5 = new _Promise(fn5),
         p6 = new _Promise(fn6);
     _Promise.all([p5, p6]).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }, err => {
-        console.log(err);
+        console.mylog(_Promise, err);
     });
 }
 
@@ -155,37 +189,37 @@ test7.info = '7 catch测试';
 function test7(_Promise) {
     function fn7(resolve, reject) {
         setTimeout(() => {
-            console.log('fn7执行');
+            console.mylog(_Promise, 'fn7执行');
             reject('rejeted');
         }, 1000);
     };
     new _Promise(fn7).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch(err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 //catch测试——链式调用reject状态的catch（冒泡）
 test8.info = '8 catch测试——reject冒泡';
 function test8(_Promise) {
     function fn7(resolve, reject) {
-        console.log('fn7执行');
+        console.mylog(_Promise, 'fn7执行');
         reject('reject at fn7');
     };
     function fn8(resolve, reject) {
-        console.log('fn8执行');
+        console.mylog(_Promise, 'fn8执行');
         resolve(88);
     };
     new _Promise(fn7).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn8);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 //上例异步
@@ -193,24 +227,24 @@ test9.info = '9 catch测试——异步reject冒泡';
 function test9(_Promise) {
     function fn7(resolve, reject) {
         setTimeout(() => {
-            console.log('fn7执行');
+            console.mylog(_Promise, 'fn7执行');
             reject('reject at fn7');
         }, 1000);
     };
     function fn8(resolve, reject) {
-        console.log('fn8执行');
+        console.mylog(_Promise, 'fn8执行');
         resolve(88);
     };
     new _Promise(fn7).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn8);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 //reject冒泡
@@ -218,26 +252,26 @@ test10.info = '10 reject冒泡';
 function test10(_Promise) {
     function fn7(resolve, reject) {
         setTimeout(() => {
-            console.log('fn7执行');
+            console.mylog(_Promise, 'fn7执行');
             reject('reject at fn7');
         }, 1000);
     };
     function fn8(resolve, reject) {
-        console.log('fn8执行');
+        console.mylog(_Promise, 'fn8执行');
         resolve(88);
     };
     new _Promise(fn7).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn8);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }, err => {
-        console.log('then2==',err);
+        console.mylog(_Promise, 'then2==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 
@@ -249,23 +283,23 @@ function test11(_Promise) {
         resolve(99);
     };
     function fn10(resolve, reject) {
-        console.log('fn10执行');
+        console.mylog(_Promise, 'fn10执行');
         resolve(1010);
     };
     new _Promise(fn9).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn10);
     }, err => {
-        console.log('then1==',err);
+        console.mylog(_Promise, 'then1==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }, err => {
-        console.log('then2==',err);
+        console.mylog(_Promise, 'then2==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 
@@ -279,23 +313,23 @@ function test12(_Promise) {
         }, 1000);
     };
     function fn10(resolve, reject) {
-        console.log('fn10执行');
+        console.mylog(_Promise, 'fn10执行');
         resolve(1010);
     };
     new _Promise(fn9).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return new _Promise(fn10);
     }, err => {
-        console.log('then1==',err);
+        console.mylog(_Promise, 'then1==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }, err => {
-        console.log('then2==',err);
+        console.mylog(_Promise, 'then2==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 
@@ -308,27 +342,27 @@ function test13(_Promise) {
         }, 1000);
     };
     function fn10(resolve, reject) {
-        console.log('fn10执行');
+        console.mylog(_Promise, 'fn10执行');
         resolve(1010);
     };
     new _Promise(fn9).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         throw new Error('err@fn9');
         return new _Promise(fn10);
     }, err => {
-        console.log('then1==',err);
+        console.mylog(_Promise, 'then1==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }, err => {
-        console.log('then2==',err);
+        console.mylog(_Promise, 'then2==',err);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 1111;
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 
@@ -341,23 +375,23 @@ function test14(_Promise) {
         }, 1000);
     };
     function fn10(resolve, reject) {
-        console.log('fn10执行');
+        console.mylog(_Promise, 'fn10执行');
         resolve(1010);
     };
     new _Promise(fn9).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         throw new Error('err@fn9');
         return new _Promise(fn10);
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 99;
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
         return 1111;
     }).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 
@@ -371,11 +405,11 @@ function test15(_Promise) {
         }, 1000);
     };
     new _Promise(fn11).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -389,11 +423,11 @@ function test16(_Promise) {
         }, 1000);
     };
     new _Promise(fn11).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -405,11 +439,11 @@ function test17(_Promise) {
         resolve(1111);
     };
     new _Promise(fn11).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -417,15 +451,15 @@ function test17(_Promise) {
 test18.info = '18 resolve方法测试——是MyPromise对象';
 function test18(_Promise) {
     function fn12(resolve, reject) {
-        console.log('fn12执行');
+        console.mylog(_Promise, 'fn12执行');
         resolve(1212);
     };
     _Promise.resolve(new _Promise(fn12)).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -438,11 +472,11 @@ function test19(_Promise) {
         }
     };
     _Promise.resolve(thenable).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -455,11 +489,11 @@ function test20(_Promise) {
         }
     };
     _Promise.resolve(thenable).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -467,11 +501,11 @@ function test20(_Promise) {
 test21.info = '21 resolve方法测试——不具有then方法';
 function test21(_Promise) {
     _Promise.resolve('Have no then func').then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -479,13 +513,13 @@ function test21(_Promise) {
 test22.info = '22 resolve方法测试——无参数';
 function test22(_Promise) {
     let p = _Promise.resolve();
-    // console.log('新Promise对象==', p);
+    // console.mylog(_Promise, '新Promise对象==', p);
     p.then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -493,13 +527,13 @@ function test22(_Promise) {
 test23.info = '23 resolve方法测试——参数是null';
 function test23(_Promise) {
     let p = _Promise.resolve(null);
-    // console.log('新Promise对象==', p);
+    // console.mylog(_Promise, '新Promise对象==', p);
     p.then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -507,13 +541,13 @@ function test23(_Promise) {
 test24.info = '24 resolve方法测试——参数是空字符串';
 function test24(_Promise) {
     let p = _Promise.resolve('');
-    // console.log('新Promise对象==', p);
+    // console.mylog(_Promise, '新Promise对象==', p);
     p.then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -522,11 +556,11 @@ test25.info = '25 reject方法测试';
 function test25(_Promise) {
     let p = _Promise.reject('reject方法');
     p.then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }).catch( err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     }).finally(() => {
-        console.log('finally func!')
+        console.mylog(_Promise, 'finally func!')
     });
 }
 
@@ -536,7 +570,7 @@ function test26(_Promise) {
     function fn5(resolve, reject) {
         setTimeout(() => {
             let randNum = Math.random();
-            console.log('fn5延迟2秒执行');
+            console.mylog(_Promise, 'fn5延迟2秒执行');
             if (randNum > 0.5) {
                 resolve('fn5 resovle==大于0.5');
             } else {
@@ -547,7 +581,7 @@ function test26(_Promise) {
     function fn6(resolve, reject) {
         setTimeout(() => {
             let randNum = Math.random();
-            console.log('fn6延迟1秒执行');
+            console.mylog(_Promise, 'fn6延迟1秒执行');
             if (randNum > 0.5) {
                 resolve('fn6 resovle==大于0.5');
             } else {
@@ -558,9 +592,9 @@ function test26(_Promise) {
     let p5 = new _Promise(fn5),
         p6 = new _Promise(fn6);
     _Promise.race([p5, p6]).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }, err => {
-        console.log(err);
+        console.mylog(_Promise, err);
     });
 }
 
@@ -581,9 +615,9 @@ function test27(_Promise) {
             }, 1000);
     };
     new _Promise(fn13).then(res => {
-        console.log(res);
+        console.mylog(_Promise, res);
     }, err => {
-        console.log(err);
+        console.mylog(_Promise, err);
     });
 }
 
@@ -597,22 +631,22 @@ function test28(_Promise) {
         reject(2);
     };
     new _Promise(fn1).then(val => {
-        console.log('res1==', val);
+        console.mylog(_Promise, 'res1==', val);
         return new _Promise(fn2);
     }, err => {
-        console.log('err1==',err);
+        console.mylog(_Promise, 'err1==',err);
     }).then(val => {
-        console.log('res2==', val);
+        console.mylog(_Promise, 'res2==', val);
         return 33;
     }, err => {
-        console.log('err2==', err);
+        console.mylog(_Promise, 'err2==', err);
         return 44;
     }).then((val) => {
-        console.log('res3==', val);
+        console.mylog(_Promise, 'res3==', val);
     }, err => {
-        console.log('err3==', err);
+        console.mylog(_Promise, 'err3==', err);
     }).catch(err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
 }
 
@@ -626,21 +660,38 @@ function test29(_Promise) {
         reject(2);
     };
     new _Promise(fn1).then(val => {
-        console.log('res1==', val);
+        console.mylog(_Promise, 'res1==', val);
     }, err => {
-        console.log('err1==',err);
+        console.mylog(_Promise, 'err1==',err);
         return new _Promise(fn2);
     }).then(val => {
-        console.log('res2==', val);
+        console.mylog(_Promise, 'res2==', val);
         return 33;
     }, err => {
-        console.log('err2==', err);
+        console.mylog(_Promise, 'err2==', err);
         return 44;
     }).then((val) => {
-        console.log('res3==', val);
+        console.mylog(_Promise, 'res3==', val);
     }, err => {
-        console.log('err3==', err);
+        console.mylog(_Promise, 'err3==', err);
     }).catch(err => {
-        console.log('catch==', err);
+        console.mylog(_Promise, 'catch==', err);
     });
-}
+};
+
+//then方法的异步执行
+test30.info = '30 then方法的异步执行';
+function test30(_Promise) {
+    function fn30(resolve, reject) {
+        console.mylog(_Promise, 'running fn30');
+        resolve('resolve @fn30')
+    };
+    console.mylog(_Promise, 'start');
+    let p = new _Promise(fn30);
+    p.then(res => {
+        console.mylog(_Promise, res);
+    }).catch(err => {
+        console.mylog(_Promise, 'err=', err);
+    });
+    console.mylog(_Promise, 'end');
+};
