@@ -1,0 +1,15 @@
+ul.sudoku-list {
+    width: 360px;
+    height: 360px;
+    list-style-type: none;
+}
+.sudoku-list li {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+}
+.sudoku-list .zero-cell {
+    background-color: brown;
+}
