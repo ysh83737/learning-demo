@@ -27,7 +27,7 @@ ul.sudoku-list {
 .sudoku-list .zero-cell {
     background-color: brown;
 }
-.sudoku-list .focus {
+.sudoku-list li.focus.digged-cell {
     /* background-color: aqua; */
     border-color: aqua;
 }
@@ -47,6 +47,18 @@ ul.sudoku-list {
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
+}
+.base-cell.bold-bottom {
+    border-bottom: 1px solid black;
+}
+.base-cell.bold-top {
+    border-top: 1px solid black;
+}
+.base-cell.bold-right {
+    border-right: 1px solid black;
+}
+.base-cell.bold-left {
+    border-left: 1px solid black;
 }
 
 ul.number-btns {

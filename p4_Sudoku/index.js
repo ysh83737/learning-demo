@@ -405,6 +405,10 @@ class Tools {
             value = userInput || '';
             cellNode.classList.add('digged-cell');
         };
+        if (row === 3 || row === 6) cellNode.classList.add('bold-bottom');
+        if (row === 4 || row === 7) cellNode.classList.add('bold-top');
+        if (col === 3 || col === 6) cellNode.classList.add('bold-right');
+        if (col === 4 || col === 7) cellNode.classList.add('bold-left');
         cellNode.classList.add('base-cell');
         cellNode.classList.add(cell.getInputValidStatus() ? 'input-valid' : 'input-invalid');
         cellNode.innerText = value;
@@ -432,12 +436,16 @@ class Sodoku {
      *      3-困难
      */
     digBoard(level) {
+        let keepCount = 3;
         let table = this.table;
         for (let row = 1; row <= 9; row++) {
-            let randomColFist = Tools.getRandomNum(9, false),
-                randomColSecond = Tools.getRandomNum(8, false);
+            let keepColList = [];
+            for (let j = 0; j < keepCount; j++) {
+                let randomCol = Tools.getRandomNum(9 - j, false);
+                keepColList.push(randomCol);
+            };
             for (let col = 1; col <= 9; col++) {
-                if (col !== randomColFist && col !== randomColSecond) {
+                if (!keepColList.includes(col)) {
                     table.digSingleCell(row, col);
                 }
             }
