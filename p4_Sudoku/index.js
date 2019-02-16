@@ -11,6 +11,8 @@ class Board {
             }
         };
         this.cells = cells;
+        this.focusLocation = [0, 0];
+        this.dom = null;
     }
     //初始化数独矩阵，生成完整的符合数独规则的表格
     init() {
@@ -102,6 +104,83 @@ class Board {
             cell.used.clearUsed();
         });
     }
+    digSingleCell(row, col) {
+        let cell = this.getSingleCell(row, col);
+        cell.setDigStatus(true);
+        return cell;
+    }
+    setFocusLocation(row, col) {
+        let [lastRow, lastCol] = this.focusLocation;
+        let lastCell = this.getSingleCell(lastRow, lastCol);
+        this.focusLocation = [row, col];
+        if (lastCell) {
+            lastCell.toggleFocus();
+            this.updateCellDom(lastRow, lastCol);
+        };
+    }
+    handleInputFocus(row, col) {
+        let cell = this.getSingleCell(row, col);
+        if (cell.getDigStatus()) {
+            cell.toggleFocus();
+            this.setFocusLocation(row, col);
+            this.updateCellDom(row, col);
+        }
+    }
+    handleUserInput(val) {
+        let [row, col] = this.focusLocation;
+        let cell = this.getSingleCell(row, col);
+        if (!cell) return;
+        let validList = Tools.getValidNums(row, col, this, true);
+        val = Number(val);
+        if (validList.includes(val)) {
+            //暂时有效
+            console.log('数字有效');
+            cell.setInputValid(true);
+            if (this.checkAllDone()) {
+                alert('恭喜过关');
+            } else {
+                // this.handleInputFocus(...this.getNextDigCell(row, col));
+            }
+        } else {
+            //数字无效
+            console.log('数字无效');
+            // cell.setInputValid(false);
+        }
+        cell.setUserInput(val);
+        this.updateCellDom(row, col);
+    }
+    checkAllDone() {
+        let cells = this.getCells();
+        for (let i = 0; i < cells.length; i++) {
+            let cell = cells[i];
+            if (cell.getDigStatus()) {
+                if (cell.getUserInput() === 0) return false;
+                if (!cell.getInputValidStatus()) return false;
+            }
+        };
+        return true;
+    }
+    getNextDigCell(row, col) {
+        let cells = this.getCells(),
+            cell = this.getSingleCell(row, col),
+            curIndex = cell.getListIndex();
+        for (let i = curIndex + 1; i < cells.length; i++) {
+            let item = cells[i];
+            if (item.getDigStatus()) {
+                return item.getLocation();
+            }
+        };
+        return false;
+        
+    }
+    updateCellDom(row, col) {
+        let index = (row - 1) * 9 + col - 1,
+            cellList = this.dom.children[0],
+            oldCellNode = cellList.children[index],
+            cell = this.getSingleCell(row, col),
+            newCellNode = Tools.renderSingleCell(cell);
+        cellList.replaceChild(newCellNode, oldCellNode);
+    }
     /**
      * 渲染数独表格
      * @param {object} dom 装载数独表格的容器
@@ -110,15 +189,13 @@ class Board {
         let cells = this.cells;
         let listHtml = document.createElement('ul');
         listHtml.className = 'sudoku-list';
-        cells.forEach((item, index) => {
-            let cellNode = document.createElement('li');
-            let value = item.getValue();
-            if (value === 0) cellNode.className = 'zero-cell';
-            cellNode.innerText = value;
+        cells.forEach(cell => {
+            let cellNode = Tools.renderSingleCell(cell);
             listHtml.appendChild(cellNode);
         });
         dom.innerHTML = '';
         dom.appendChild(listHtml);
+        this.dom = dom;
     }
 }
 /**
@@ -136,6 +213,11 @@ class Cell {
         this.col = col;
         this.value = val;
         this.used = new NumberUsed();
+        this.userInput = 0;
+        this.isDigged = false;
+        this.focus = false;
+        this.inputValid = true;
+        this.index = (row - 1) * 9 + col - 1;
     }
     //获取当前格子的坐标
     getLocation() {
@@ -149,6 +231,33 @@ class Cell {
     setValue(val) {
         this.value = val;
         this.used.addUsed(val);
+    }
+    getUserInput() {
+        return this.userInput;
+    }
+    setUserInput(val) {
+        this.userInput = val;
+    }
+    getDigStatus() {
+        return this.isDigged;
+    }
+    setDigStatus(bool) {
+        this.isDigged = bool;
+    }
+    toggleFocus() {
+        this.focus = !this.focus;
+    }
+    getFocus() {
+        return this.focus;
+    }
+    getInputValidStatus() {
+        return this.inputValid;
+    }
+    setInputValid(bool) {
+        this.inputValid = bool;
+    }
+    getListIndex() {
+        return this.index;
     }
 }
 /**
@@ -198,7 +307,7 @@ class Tools {
      * @returns {number} 生成的随机数
      */
     static getRandomNum(top = 9, fromZero = false) {
-        return parseInt(Math.random() * top) + (fromZero ? 0 : 1);
+        return parseInt(Math.random() * (top - 0.1)) + (fromZero ? 0 : 1);
     }
     /**
      * 生成包含1~9随机顺序的数组
@@ -217,27 +326,37 @@ class Tools {
     /**
      * 提取一组格子的值
      * @param {array} cellList 格子数组
+     * @param {boolean} isInput 是不是用户输入，如果是，优先返回输入数据
      * @returns {array}
      */
-    static getValueList(cellList) {
-        return cellList.map(item => item.getValue())
+    static getValueList(cellList, isInput = false, row, col) {
+        return cellList.map(cell => {
+            if (isInput) {
+                let [cellRow, cellCol] = cell.getLocation();
+                if (row === cellRow && col === cellCol) return 0;
+                return cell.getDigStatus() ? cell.getUserInput() : cell.getValue();
+            } else {
+                return cell.getValue();
+            }
+        })
     }
     /**
      * 根据数独规则，计算指定坐标格子的可用数字
      * @param {number} row 行坐标
      * @param {number} col 列坐标
      * @param {object} table 所在数独表格对象
+     * @param {boolean} isInput 是不是用户输入的情况
      * @returns {array} 可用数字列表
      */
-    static getValidNums(row, col, table) {
+    static getValidNums(row, col, table, isInput = false) {
         let rowList = table.getRowList(row),
             colList = table.getColList(col),
             squreList = table.getSqureList(row, col);
-        let rowListVal = Tools.getValueList(rowList),
-            colListVal = Tools.getValueList(colList),
-            squreListVal = Tools.getValueList(squreList);
-        let basicList = Tools.getBasicList();
-        let cellUsed = table.getSingleCell(row, col).used.getUsedList();
+        let rowListVal = this.getValueList(rowList, isInput, row, col),
+            colListVal = this.getValueList(colList, isInput, row, col),
+            squreListVal = this.getValueList(squreList, isInput, row, col);
+        let basicList = this.getBasicList();
+        let cellUsed = isInput ? [] : table.getSingleCell(row, col).used.getUsedList();
         return basicList.filter(item => {
             return !rowListVal.includes(item) 
                 && !colListVal.includes(item) 
@@ -255,7 +374,7 @@ class Tools {
         table.clearRangeList(row, 1, row, 9);//清空当前行
         let col = 1;
         while (col <= 9) {
-            let validNums = this.getValidNums(row, col, table),
+            let validNums = this.getValidNums(row, col, table, false),
                 len = validNums.length;
             // console.log(`坐标 (${row}, ${col}) 的可用值有`, validNums);
             if (len > 0) {
@@ -275,10 +394,119 @@ class Tools {
         //本行填充完成，操作【下一行】
         return row + 1;
     }
+    static renderSingleCell(cell) {
+        let cellNode = document.createElement('li');
+        let value = cell.getValue(),
+            [row, col] = cell.getLocation();
+        if (value === 0) cellNode.classList.add('zero-cell');
+        if (cell.getFocus()) cellNode.classList.add('focus');
+        if (cell.getDigStatus()) {
+            let userInput = cell.getUserInput();
+            value = userInput || '';
+            cellNode.classList.add('digged-cell');
+        };
+        cellNode.classList.add('base-cell');
+        cellNode.classList.add(cell.getInputValidStatus() ? 'input-valid' : 'input-invalid');
+        cellNode.innerText = value;
+        cellNode.setAttribute('data-location', `${row}-${col}`);
+        cellNode.setAttribute('data-type', 'cell');
+        return cellNode;
+    }
+}
+class Sodoku {
+    constructor(dom) {
+        let table = new Board();
+        let panel = new NumberPanel();
+        table.init();
+        table.renderBoard(dom);
+        // table.renderBoard(document.getElementById('answer'));
+        this.dom = dom;
+        this.table = table;
+        this.panel = panel;
+    }
+    /**
+     * 对完整的数独进行挖空
+     * @param {number} level 难度等级 ---------- 暂时没用，未掌握数独定级算法
+     *      1-简单 
+     *      2-普通 
+     *      3-困难
+     */
+    digBoard(level) {
+        let table = this.table;
+        for (let row = 1; row <= 9; row++) {
+            let randomColFist = Tools.getRandomNum(9, false),
+                randomColSecond = Tools.getRandomNum(8, false);
+            for (let col = 1; col <= 9; col++) {
+                if (col !== randomColFist && col !== randomColSecond) {
+                    table.digSingleCell(row, col);
+                }
+            }
+        }
+    }
+    updateDom() {
+        this.table.renderBoard(this.dom);
+    }
+    gameStart() {
+        let dom = this.dom;
+        // let btnsDom = document.getElementById('btns');
+        dom.addEventListener('click', (e) => {
+            let target = e.target;
+            let type = target.getAttribute('data-type');
+            switch (type) {
+                case 'cell':
+                    let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
+                    this.table.handleInputFocus(row, col);
+                    break;
+                case 'btn':
+                    let inputNum = target.getAttribute('data-value');
+                    this.table.handleUserInput(inputNum);
+                    break;
+                default:
+                    console.log('点击无效区域');
+                    break;
+            }
+        });
+        this.panel.init(dom);
+    }
+}
+class NumberPanel {
+    constructor() {
+        let list = [];
+        for (let i = 1; i <= 9; i++) {
+            let btn = new NumberButton(i);
+            list.push(btn);
+        };
+        this.buttons = list;
+    }
+    init(dom) {
+        let list = this.buttons;
+        let container = document.createElement('ul');
+        list.forEach(btn => {
+            let btnNode = document.createElement('li');
+            btnNode.classList.add('btn');
+            btnNode.classList.add('base-cell');
+            btnNode.innerText = btn.getNum();
+            btnNode.setAttribute('data-value', btn.getNum());
+            btnNode.setAttribute('data-type', 'btn');
+            container.appendChild(btnNode);
+        });
+        container.classList.add('number-btns');
+        dom.appendChild(container);
+    }
+}
+class NumberButton {
+    constructor(num) {
+        this.num = num;
+    }
+    getNum() {
+        return this.num;
+    }
 }
 window.onload = () => {
     let appContainer = document.getElementById('app');
-    let table = new Board();
-    table.init();
-    table.renderBoard(appContainer);
+    let game = new Sodoku(appContainer);
+    game.digBoard();
+    game.updateDom();
+    game.gameStart();
+    console.log(game);
 };
