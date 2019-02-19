@@ -69,10 +69,25 @@ ul.sudoku-list {
 
 ul.number-btns {
     margin-top: 20px;
-    width: 360px;
+    width: 400px;
     border: 2px solid silver;
 }
 
 #answer {
     margin-top: 20px;
+}
+
+.user-interface {
+    margin: 0 -10px;
+    text-align: center;
+}
+.user-btns {
+    display: inline-block;
+    width: 100px;
+    height: 40px;
+    line-height: 40px;
+    border: 2px solid darksalmon;
+    text-align: center;
+    margin: 0 10px;
+    cursor: pointer;
 }

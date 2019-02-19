@@ -159,7 +159,7 @@ class Board {
                 this.updateCellDom(row, col);
                 alert('恭喜过关');
             } else {
-                this.handleInputFocus(...this.getNextDigCell(row, col));
+                // this.handleInputFocus(...this.getNextDigCell(row, col));//移到下一格
             }
         } else {
             console.log(`(${row}, ${col}) = ${val} invalid`);
@@ -175,7 +175,7 @@ class Board {
             if (row === cellRow && col === cellCol) return;
             let cellValue = cell.getDigStatus() ? cell.getUserInput() : cell.getValue();
             let cellInvalid = false;
-            if (cellValue === val) {
+            if (val !== 0 && cellValue === val) {
                 isValid = false;
                 cellInvalid = true;
             } else {
@@ -483,12 +483,25 @@ class Tools {
 }
 class Sodoku {
     constructor(dom) {
+        this.dom = dom;
+        this.init(dom);
+    }
+    init(dom) {
         let table = new Board();
         let panel = new NumberPanel();
+        let userInerface = new UserInerfacePanel(this);
+        let tableContainer = document.createElement('div'),
+            numberPanelContainer = document.createElement('div'),
+            userInerfaceContainer = document.createElement('div');
         table.init();
-        table.renderBoard(dom);
-        // table.renderBoard(document.getElementById('answer'));//答案
-        this.dom = dom;
+        table.renderBoard(tableContainer);
+        panel.init(numberPanelContainer);
+        userInerface.init(userInerfaceContainer);
+        dom.appendChild(tableContainer);
+        dom.appendChild(numberPanelContainer);
+        dom.appendChild(userInerfaceContainer);
+
+        this.tableContainer = tableContainer;
         this.table = table;
         this.panel = panel;
     }
@@ -519,13 +532,14 @@ class Sodoku {
         }
     }
     updateDom() {
-        this.table.renderBoard(this.dom);
+        this.table.renderBoard(this.tableContainer);
     }
     gameStart() {
         let dom = this.dom;
         dom.addEventListener('click', (e) => {
             let target = e.target;
             let type = target.getAttribute('data-type');
+            console.log('type', type);
             switch (type) {
                 case 'cell':
                     let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
@@ -535,12 +549,39 @@ class Sodoku {
                     let inputNum = target.getAttribute('data-value');
                     this.table.handleUserInput(inputNum);
                     break;
+                case 'opera'://游戏设置
+                    let id = target.getAttribute('data-id');
+                    console.log('设置==', id);
+                    break;
                 default:
                     console.log('点击无效区域');
                     break;
             }
         });
-        this.panel.init(dom);
+    }
+    handleUserInterface(id) {
+        const typeList = ['start', 'next', 'level', 'stop', 'reset', 'answer'];
+        const typeName = ['开始', '换一个', '难度', '停止', '重置', '答案'];
+        switch (id) {
+            case 'start':
+                
+                break;
+            case 'next':
+                
+                break;
+            case 'level':
+                
+                break;
+            case 'stop':
+                
+                break;
+            case 'reset':
+                
+                break;
+            case 'answer':
+                
+                break;
+        }
     }
 }
 class NumberPanel {
@@ -550,6 +591,7 @@ class NumberPanel {
             let btn = new NumberButton(i);
             list.push(btn);
         };
+        list.push(new NumberButton(0));//清除输入
         this.buttons = list;
     }
     init(dom) {
@@ -557,10 +599,11 @@ class NumberPanel {
         let container = document.createElement('ul');
         list.forEach(btn => {
             let btnNode = document.createElement('li');
+            let num = btn.getNum();
             btnNode.classList.add('btn');
             btnNode.classList.add('base-cell');
-            btnNode.innerText = btn.getNum();
-            btnNode.setAttribute('data-value', btn.getNum());
+            btnNode.innerText = num === 0 ? '←' : num;
+            btnNode.setAttribute('data-value', num);
             btnNode.setAttribute('data-type', 'btn');
             container.appendChild(btnNode);
         });
@@ -574,6 +617,45 @@ class NumberButton {
     }
     getNum() {
         return this.num;
+    }
+}
+class UserInerfacePanel {
+    constructor() {
+        //1-初试状态 2-游戏中 3-用户停止 4-游戏过关
+        this.status = 1;
+        this.dom = null;
+    }
+    init(dom) {
+        dom.classList.add('user-interface');
+        this.dom = dom;
+        this.getPanelDom(dom);
+    }
+    changStatus(status) {
+        this.status = status;
+        this.getPanelDom(this.dom);
+    }
+    getStatus() {
+        return this.status;
+    }
+    getPanelDom(dom) {
+        const statusBtns = {1: '123', 2: '4', 3: '5236', 4: '1236'};
+        let status = this.status;
+        dom.innerHTML = '';
+        statusBtns[status].split('').forEach(item => {
+            let btnNode = this.getBtnNode(item);
+            dom.appendChild(btnNode);
+        });
+    }
+    getBtnNode(btnId) {
+        const typeList = ['start', 'next', 'level', 'stop', 'reset', 'answer'];
+        const typeName = ['开始', '换一个', '难度', '停止', '重置', '答案'];
+        let node = document.createElement('a');
+        node.classList.add('user-btns');
+        node.classList.add(typeList[btnId - 1]);
+        node.innerText = typeName[btnId - 1];
+        node.setAttribute('data-type', 'opera');
+        node.setAttribute('data-id', typeList[btnId - 1]);
+        return node;
     }
 }
 window.onload = () => {
