@@ -109,15 +109,6 @@ class Board {
         cell.setDigStatus(true);
         return cell;
     }
-    setFocusLocation(row, col) {
-        let [lastRow, lastCol] = this.focusLocation;
-        let lastCell = this.getSingleCell(lastRow, lastCol);
-        this.focusLocation = [row, col];
-        if (lastCell) {
-            lastCell.toggleFocus();
-            this.updateCellDom(lastRow, lastCol);
-        };
-    }
     handleInputFocus(row, col) {
         let cell = this.getSingleCell(row, col);
         if (cell.getDigStatus()) {
@@ -126,28 +117,75 @@ class Board {
             this.updateCellDom(row, col);
         }
     }
+    setFocusLocation(row, col) {
+        let [lastRow, lastCol] = this.focusLocation;
+        let lastCell = this.getSingleCell(lastRow, lastCol);
+        if (lastCell) {
+            lastCell.toggleFocus();
+            this.setReleAreaFocus(lastRow, lastCol, false);
+            this.updateCellDom(lastRow, lastCol);
+        };
+        this.focusLocation = [row, col];
+        this.setReleAreaFocus(row, col, true);
+    }
+    setReleAreaFocus(row, col, isFocus = true) {
+        let associatArea = this.getReleArea(row, col);
+        associatArea.forEach(cell => {
+            let [cellRow, cellCol] = cell.getLocation();
+            cell.setReleFocus(isFocus);
+            this.updateCellDom(cellRow, cellCol);
+        });
+    }
+    getReleArea(row, col) {
+        let rowList = this.getRowList(row),
+            colList = this.getColList(col),
+            squreList = this.getSqureList(row, col);
+        let combineList = [].concat(rowList, colList, squreList);
+        return combineList.reduce((pre, cur) => {
+            if (!pre.includes(cur)) pre.push(cur);
+            return pre;
+        }, []);
+    }
     handleUserInput(val) {
+        val = Number(val);
         let [row, col] = this.focusLocation;
         let cell = this.getSingleCell(row, col);
         if (!cell) return;
-        let validList = Tools.getValidNums(row, col, this, true);
-        val = Number(val);
-        if (validList.includes(val)) {
-            //暂时有效
-            console.log('数字有效');
-            cell.setInputValid(true);
+        let isValid = this.checkInputValid(row, col, val);
+        cell.setUserInput(val);
+        if (isValid) {
+            console.log(`(${row}, ${col}) = ${val} valid`);
             if (this.checkAllDone()) {
+                this.updateCellDom(row, col);
                 alert('恭喜过关');
             } else {
-                // this.handleInputFocus(...this.getNextDigCell(row, col));
+                this.handleInputFocus(...this.getNextDigCell(row, col));
             }
         } else {
-            //数字无效
-            console.log('数字无效');
-            // cell.setInputValid(false);
+            console.log(`(${row}, ${col}) = ${val} invalid`);
         }
-        cell.setUserInput(val);
         this.updateCellDom(row, col);
+    }
+    checkInputValid(row, col, val) {
+        let editingCell = this.getSingleCell(row, col),
+            releAreaCells = this.getReleArea(row, col),
+            isValid = true;
+        releAreaCells.forEach(cell => {
+            let [cellRow, cellCol] = cell.getLocation();
+            if (row === cellRow && col === cellCol) return;
+            let cellValue = cell.getDigStatus() ? cell.getUserInput() : cell.getValue();
+            let cellInvalid = false;
+            if (cellValue === val) {
+                isValid = false;
+                cellInvalid = true;
+            } else {
+                cellInvalid = false;
+            }
+            editingCell.setReleInputInvalid(cellRow, cellCol, cellInvalid);
+            cell.setReleInputInvalid(row, col, cellInvalid);
+            this.updateCellDom(cellRow, cellCol);
+        });
+        return isValid;
     }
     checkAllDone() {
         let cells = this.getCells();
@@ -155,7 +193,8 @@ class Board {
             let cell = cells[i];
             if (cell.getDigStatus()) {
                 if (cell.getUserInput() === 0) return false;
-                if (!cell.getInputValidStatus()) return false;
+                // if (!cell.getInputValidStatus()) return false;
+                if (cell.getReleInputInvalid().length > 0) return false;
             }
         };
         return true;
@@ -216,8 +255,9 @@ class Cell {
         this.userInput = 0;
         this.isDigged = false;
         this.focus = false;
-        this.inputValid = true;
         this.index = (row - 1) * 9 + col - 1;
+        this.releFocus = false;
+        this.releInputInvalid = new ReleInputInvalidRecord();
     }
     //获取当前格子的坐标
     getLocation() {
@@ -250,14 +290,38 @@ class Cell {
     getFocus() {
         return this.focus;
     }
-    getInputValidStatus() {
-        return this.inputValid;
-    }
-    setInputValid(bool) {
-        this.inputValid = bool;
-    }
     getListIndex() {
         return this.index;
+    }
+    getReleFocus() {
+        return this.releFocus;
+    }
+    setReleFocus(bool) {
+        this.releFocus = bool;
+        return this;
+    }
+    getReleInputInvalid() {
+        return this.releInputInvalid.getArray();
+    }
+    setReleInputInvalid(row, col, isAdd) {
+        return this.releInputInvalid.handleRecord(row, col, isAdd);
+    }
+}
+class ReleInputInvalidRecord {
+    constructor() {
+        this.record = new Set();
+    }
+    handleRecord(row, col, isAdd) {
+        let record = this.record,
+            str = `${row}-${col}`;
+        if (isAdd) {
+            record.add(str);
+        } else {
+            record.delete(str);
+        };
+    }
+    getArray() {
+        return [...this.record];
     }
 }
 /**
@@ -376,7 +440,6 @@ class Tools {
         while (col <= 9) {
             let validNums = this.getValidNums(row, col, table, false),
                 len = validNums.length;
-            // console.log(`坐标 (${row}, ${col}) 的可用值有`, validNums);
             if (len > 0) {
                 let randomIndex = this.getRandomNum(len - 1, true);
                 table.setSingleCell(row, col, validNums[randomIndex]);
@@ -398,19 +461,20 @@ class Tools {
         let cellNode = document.createElement('li');
         let value = cell.getValue(),
             [row, col] = cell.getLocation();
+        cellNode.classList.add('base-cell');
+        if (row === 3 || row === 6) cellNode.classList.add('bold-bottom');
+        if (row === 4 || row === 7) cellNode.classList.add('bold-top');
+        if (col === 3 || col === 6) cellNode.classList.add('bold-right');
+        if (col === 4 || col === 7) cellNode.classList.add('bold-left');
         if (value === 0) cellNode.classList.add('zero-cell');
         if (cell.getFocus()) cellNode.classList.add('focus');
+        if (cell.getReleFocus()) cellNode.classList.add('rele-focus');
+        if (cell.getReleInputInvalid().length > 0) cellNode.classList.add('rele-invalid');
         if (cell.getDigStatus()) {
             let userInput = cell.getUserInput();
             value = userInput || '';
             cellNode.classList.add('digged-cell');
         };
-        if (row === 3 || row === 6) cellNode.classList.add('bold-bottom');
-        if (row === 4 || row === 7) cellNode.classList.add('bold-top');
-        if (col === 3 || col === 6) cellNode.classList.add('bold-right');
-        if (col === 4 || col === 7) cellNode.classList.add('bold-left');
-        cellNode.classList.add('base-cell');
-        cellNode.classList.add(cell.getInputValidStatus() ? 'input-valid' : 'input-invalid');
         cellNode.innerText = value;
         cellNode.setAttribute('data-location', `${row}-${col}`);
         cellNode.setAttribute('data-type', 'cell');
@@ -423,7 +487,7 @@ class Sodoku {
         let panel = new NumberPanel();
         table.init();
         table.renderBoard(dom);
-        // table.renderBoard(document.getElementById('answer'));
+        // table.renderBoard(document.getElementById('answer'));//答案
         this.dom = dom;
         this.table = table;
         this.panel = panel;
@@ -431,17 +495,20 @@ class Sodoku {
     /**
      * 对完整的数独进行挖空
      * @param {number} level 难度等级 ---------- 暂时没用，未掌握数独定级算法
-     *      1-简单 
-     *      2-普通 
-     *      3-困难
+     *      1-简单 -每行保留4格
+     *      2-普通 -每行保留3格
+     *      3-困难 -每行保留2格
      */
-    digBoard(level) {
-        let keepCount = 3;
+    digBoard(level = 1) {
+        let keepCount = 5 - level;
         let table = this.table;
         for (let row = 1; row <= 9; row++) {
             let keepColList = [];
             for (let j = 0; j < keepCount; j++) {
-                let randomCol = Tools.getRandomNum(9 - j, false);
+                let randomCol = Tools.getRandomNum(9, false);
+                while (keepColList.includes(randomCol)) {
+                    randomCol = Tools.getRandomNum(9, false);
+                };
                 keepColList.push(randomCol);
             };
             for (let col = 1; col <= 9; col++) {
@@ -456,7 +523,6 @@ class Sodoku {
     }
     gameStart() {
         let dom = this.dom;
-        // let btnsDom = document.getElementById('btns');
         dom.addEventListener('click', (e) => {
             let target = e.target;
             let type = target.getAttribute('data-type');
@@ -513,7 +579,7 @@ class NumberButton {
 window.onload = () => {
     let appContainer = document.getElementById('app');
     let game = new Sodoku(appContainer);
-    game.digBoard();
+    game.digBoard(1);
     game.updateDom();
     game.gameStart();
     console.log(game);

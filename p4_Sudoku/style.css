@@ -27,7 +27,13 @@ ul.sudoku-list {
 .sudoku-list .zero-cell {
     background-color: brown;
 }
-.sudoku-list li.focus.digged-cell {
+.sudoku-list .rele-focus {
+    background-color: seagreen;
+}
+.sudoku-list .rele-invalid {
+    background-color: crimson;
+}
+.sudoku-list li.digged-cell.focus {
     /* background-color: aqua; */
     border-color: aqua;
 }
@@ -67,6 +73,6 @@ ul.number-btns {
     border: 2px solid silver;
 }
 
-#btns {
+#answer {
     margin-top: 20px;
 }
