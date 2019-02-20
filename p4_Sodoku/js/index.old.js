@@ -1,3 +1,5 @@
+import css from '../css/style.css';
+
 /**
  * @class Board 9x9数独矩阵
  */
@@ -485,6 +487,8 @@ class Sodoku {
     constructor(dom) {
         this.dom = dom;
         this.init(dom);
+        this.startTime = null;
+        this.endTime = null;
     }
     init(dom) {
         let table = new Board();
@@ -564,7 +568,8 @@ class Sodoku {
         const typeName = ['开始', '换一个', '难度', '停止', '重置', '答案'];
         switch (id) {
             case 'start':
-                
+                this.startTime = new Date();
+                this.gameStart();
                 break;
             case 'next':
                 
