@@ -149,7 +149,6 @@ class Board {
         }, []);
     }
     handleUserInput(val) {
-        console.log('this===', this);
         let [row, col] = this.focusLocation;
         let cell = this.getSingleCell(row, col);
         if (!cell) return;

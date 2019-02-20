@@ -2,34 +2,38 @@ import Tools from './Tools';
 import Board from './Board';
 import NumberPanel from './NumberPanel';
 import UserInerfacePanel from './UserInerfacePanel';
+import Timer from './Timer';
 
 class Sodoku {
     constructor(dom) {
         this.dom = dom;
         this.init(dom);
-        this.startTime = null;
-        this.endTime = null;
     }
     init(dom) {
-        let table = new Board();
-        let panel = new NumberPanel();
-        let userInerface = new UserInerfacePanel(this);
+        let table = new Board(),
+            panel = new NumberPanel(),
+            userInerface = new UserInerfacePanel(this),
+            timer = new Timer();
         let tableContainer = document.createElement('div'),
             numberPanelContainer = document.createElement('div'),
-            userInerfaceContainer = document.createElement('div');
+            userInerfaceContainer = document.createElement('div'),
+            timerContainer = document.createElement('div');
         table.init();
         table.renderBoard(tableContainer);
         panel.init(numberPanelContainer, table.handleUserInput.bind(table));
-        userInerface.init(userInerfaceContainer, this.handleUserInterface);
+        userInerface.init(userInerfaceContainer, this.handleUserInterface.bind(this));
+        timer.init(timerContainer);
         dom.appendChild(tableContainer);
         dom.appendChild(numberPanelContainer);
         dom.appendChild(userInerfaceContainer);
+        dom.appendChild(timerContainer);
 
         this.tableContainer = tableContainer;
         this.numberPanelContainer = numberPanelContainer;
         this.userInerfaceContainer = userInerfaceContainer;
         this.table = table;
         this.panel = panel;
+        this.timer = timer;
     }
     /**
      * 对完整的数独进行挖空
@@ -61,52 +65,33 @@ class Sodoku {
         this.table.renderBoard(this.tableContainer);
     }
     gameStart() {
-        // let dom = this.dom;
-        // dom.addEventListener('click', (e) => {
-        //     let target = e.target;
-        //     let type = target.getAttribute('data-type');
-        //     console.log('type', type);
-        //     switch (type) {
-        //         case 'cell':
-        //             let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
-        //             this.table.handleInputFocus(row, col);
-        //             break;
-        //         case 'btn':
-        //             let inputNum = target.getAttribute('data-value');
-        //             this.table.handleUserInput(inputNum);
-        //             break;
-        //         default:
-        //             console.log('点击无效区域');
-        //             break;
-        //     }
-        // });
-        
+        this.timer.startTimer();
+
     }
     handleUserInterface(id) {
         const typeList = ['start', 'next', 'level', 'stop', 'reset', 'answer'];
         const typeName = ['开始', '换一个', '难度', '停止', '重置', '答案'];
         console.log('按键回调', id);
-        // switch (id) {
-        //     case 'start':
-        //         this.startTime = new Date();
-        //         this.gameStart();
-        //         break;
-        //     case 'next':
+        switch (id) {
+            case 'start':
+                this.gameStart();
+                break;
+            case 'next':
                 
-        //         break;
-        //     case 'level':
+                break;
+            case 'level':
                 
-        //         break;
-        //     case 'stop':
+                break;
+            case 'stop':
                 
-        //         break;
-        //     case 'reset':
+                break;
+            case 'reset':
                 
-        //         break;
-        //     case 'answer':
+                break;
+            case 'answer':
                 
-        //         break;
-        // }
+                break;
+        }
     }
 }
 export default Sodoku;

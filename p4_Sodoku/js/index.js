@@ -6,6 +6,9 @@ window.onload = () => {
     let game = new Sodoku(appContainer);
     game.digBoard(1);
     game.updateDom();
-    game.gameStart();
+    // game.gameStart();
     console.log(game);
 };
+window.onunload = () => {
+    alert('离开ing...');
+}
