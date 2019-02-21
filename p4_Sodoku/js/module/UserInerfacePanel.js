@@ -29,7 +29,8 @@ class UserInerfacePanel {
         return this.status;
     }
     renderPanelDom(dom) {
-        const statusBtns = {1: '123', 2: '4', 3: '5236', 4: '1236'};
+        // const statusBtns = {1: '123', 2: '4', 3: '5236', 4: '1236'};
+        const statusBtns = {1: '12', 2: '4', 3: '526', 4: '126'};//暂不调难度
         let status = this.status;
         dom.innerHTML = '';
         statusBtns[status].split('').forEach(item => {

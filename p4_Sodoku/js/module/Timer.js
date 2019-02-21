@@ -39,6 +39,9 @@ class Timer {
             this.renderTime(time);
         }, 100);
     }
+    resetTimer() {
+        this.renderTime(0);
+    }
     formatTime(time = 0) {
         let sec = parseInt(time / 1000 % 60),
             min = parseInt(time / 1000 / 60 % 60),

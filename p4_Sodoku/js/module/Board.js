@@ -106,11 +106,6 @@ class Board {
             cell.used.clearUsed();
         });
     }
-    digSingleCell(row, col) {
-        let cell = this.getSingleCell(row, col);
-        cell.setDigStatus(true);
-        return cell;
-    }
     handleInputFocus(row, col) {
         let cell = this.getSingleCell(row, col);
         if (cell.getDigStatus()) {
@@ -222,10 +217,51 @@ class Board {
         cellList.replaceChild(newCellNode, oldCellNode);
     }
     /**
+     * 对完整的数独进行挖空
+     * @param {object} table 挖空的数独表格对象
+     * @param {number} level 难度等级 ---------- 暂时没用，未掌握数独定级算法
+     *      1-简单 -每行保留4格
+     *      2-普通 -每行保留3格
+     *      3-困难 -每行保留2格
+     */
+    digBoard(level) {
+        let keepCount = 5 - level;
+        for (let row = 1; row <= 9; row++) {
+            let keepColList = [];
+            for (let j = 0; j < keepCount; j++) {
+                let randomCol = Tools.getRandomNum(9, false);
+                while (keepColList.includes(randomCol)) {
+                    randomCol = Tools.getRandomNum(9, false);
+                };
+                keepColList.push(randomCol);
+            };
+            for (let col = 1; col <= 9; col++) {
+                if (!keepColList.includes(col)) {
+                    this.digSingleCell(row, col);
+                }
+            }
+        }
+    }
+    digSingleCell(row, col) {
+        let cell = this.getSingleCell(row, col);
+        cell.setDigStatus(true);
+        return cell;
+    }
+    resetAllInput() {
+        let cells = this.getCells();
+        cells.forEach(cell => {
+            cell.setUserInput(0);
+            cell.setFocus(false);
+            cell.setReleFocus(false);
+            cell.clearReleInputInvalid();
+        });
+    }
+    /**
      * 渲染数独表格
      * @param {object} dom 装载数独表格的容器
+     * @param {boolean} clickable 是否监听点击事件， 默认false
      */
-    renderBoard(dom, handler) {
+    renderBoard(dom, clickable = false) {
         let cells = this.cells;
         let listHtml = document.createElement('ul');
         listHtml.className = 'sudoku-list';
@@ -236,17 +272,18 @@ class Board {
         dom.innerHTML = '';
         dom.appendChild(listHtml);
         this.dom = dom;
-
-        dom.addEventListener('click', (e) => {
-            let target = e.target;
-            let type = target.getAttribute('data-type');
-            console.log('type', type);
-            if (type === 'cell') {
-                let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
-                console.log('坐标==', row, col);
-                this.handleInputFocus(row, col);
-            }
-        })
+        if (clickable) {
+            dom.addEventListener('click', (e) => {
+                let target = e.target;
+                let type = target.getAttribute('data-type');
+                console.log('type', type);
+                if (type === 'cell') {
+                    let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
+                    console.log('坐标==', row, col);
+                    this.handleInputFocus(row, col);
+                }
+            })
+        };
     }
 }
 export default Board;

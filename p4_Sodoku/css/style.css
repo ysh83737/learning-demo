@@ -73,10 +73,6 @@ ul.number-btns {
     border: 2px solid silver;
 }
 
-#answer {
-    margin-top: 20px;
-}
-
 .user-interface {
     margin: 0 -10px;
     text-align: center;
@@ -90,4 +86,20 @@ ul.number-btns {
     text-align: center;
     margin: 0 10px;
     cursor: pointer;
+}
+.answer-table {
+    position: relative;
+    display: none;
+}
+.answer-table.show {
+    display: block;
+}
+.answer-table .close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    border: 1px solid maroon;
+    border-radius: 50%;
 }

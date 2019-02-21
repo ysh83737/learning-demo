@@ -3,93 +3,89 @@ import Board from './Board';
 import NumberPanel from './NumberPanel';
 import UserInerfacePanel from './UserInerfacePanel';
 import Timer from './Timer';
+import AnswerDialog from './AnswerDialog';
 
 class Sodoku {
     constructor(dom) {
         this.dom = dom;
         this.init(dom);
+        this.level = 1;
     }
     init(dom) {
-        let table = new Board(),
+        let table = null,
             panel = new NumberPanel(),
-            userInerface = new UserInerfacePanel(this),
-            timer = new Timer();
+            userInerface = new UserInerfacePanel(),
+            timer = new Timer(),
+            answer = new AnswerDialog();
         let tableContainer = document.createElement('div'),
             numberPanelContainer = document.createElement('div'),
             userInerfaceContainer = document.createElement('div'),
-            timerContainer = document.createElement('div');
-        table.init();
-        table.renderBoard(tableContainer);
-        panel.init(numberPanelContainer, table.handleUserInput.bind(table));
-        userInerface.init(userInerfaceContainer, this.handleUserInterface.bind(this));
-        timer.init(timerContainer);
+            timerContainer = document.createElement('div'),
+            answerContainer = document.createElement('div');
         dom.appendChild(tableContainer);
         dom.appendChild(numberPanelContainer);
         dom.appendChild(userInerfaceContainer);
         dom.appendChild(timerContainer);
-
+        dom.appendChild(answerContainer);
         this.tableContainer = tableContainer;
         this.numberPanelContainer = numberPanelContainer;
         this.userInerfaceContainer = userInerfaceContainer;
-        this.table = table;
+        this.answerContainer = answerContainer;
+        answer.init(answerContainer);
+        this.answer = answer;
+        table = this.getNewGame();
+        panel.init(numberPanelContainer, table.handleUserInput.bind(table));
+        userInerface.init(userInerfaceContainer, this.handleUserInterface.bind(this));
+        timer.init(timerContainer);
         this.panel = panel;
+        this.userInerface = userInerface;
         this.timer = timer;
     }
-    /**
-     * 对完整的数独进行挖空
-     * @param {number} level 难度等级 ---------- 暂时没用，未掌握数独定级算法
-     *      1-简单 -每行保留4格
-     *      2-普通 -每行保留3格
-     *      3-困难 -每行保留2格
-     */
-    digBoard(level = 1) {
-        let keepCount = 5 - level;
-        let table = this.table;
-        for (let row = 1; row <= 9; row++) {
-            let keepColList = [];
-            for (let j = 0; j < keepCount; j++) {
-                let randomCol = Tools.getRandomNum(9, false);
-                while (keepColList.includes(randomCol)) {
-                    randomCol = Tools.getRandomNum(9, false);
-                };
-                keepColList.push(randomCol);
-            };
-            for (let col = 1; col <= 9; col++) {
-                if (!keepColList.includes(col)) {
-                    table.digSingleCell(row, col);
-                }
-            }
-        }
-    }
-    updateDom() {
-        this.table.renderBoard(this.tableContainer);
+    getNewGame(level = 1) {
+        let table = new Board();
+        table.init();
+        this.answer.updateAnswer(table);
+        table.digBoard(level);
+        table.renderBoard(this.tableContainer);
+        this.table = table;
+        return table;
     }
     gameStart() {
         this.timer.startTimer();
-
+        this.userInerface.changStatus(2);
+    }
+    gameStop() {
+        this.timer.endTimer();
+        this.userInerface.changStatus(3);
+    }
+    gameReset() {
+        this.userInerface.changStatus(1);
+        this.table.resetAllInput();
+        this.table.renderBoard(this.tableContainer);
+        this.timer.resetTimer();
+    }
+    showAnswer() {
+        this.answer.toggleAnswerShow();
     }
     handleUserInterface(id) {
-        const typeList = ['start', 'next', 'level', 'stop', 'reset', 'answer'];
-        const typeName = ['开始', '换一个', '难度', '停止', '重置', '答案'];
-        console.log('按键回调', id);
         switch (id) {
             case 'start':
                 this.gameStart();
                 break;
             case 'next':
-                
+                this.getNewGame(this.level);
                 break;
             case 'level':
-                
+                //暂不调难度
                 break;
             case 'stop':
-                
+                this.gameStop();
                 break;
             case 'reset':
-                
+                this.gameReset();
                 break;
             case 'answer':
-                
+                this.showAnswer();
                 break;
         }
     }

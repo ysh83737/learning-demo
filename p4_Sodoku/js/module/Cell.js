@@ -42,6 +42,9 @@ class ReleInputInvalidRecord {
             record.delete(str);
         };
     }
+    clearRecord() {
+        this.record.clear();
+    }
     getArray() {
         return [...this.record];
     }
@@ -93,11 +96,14 @@ class Cell {
     setDigStatus(bool) {
         this.isDigged = bool;
     }
-    toggleFocus() {
-        this.focus = !this.focus;
-    }
     getFocus() {
         return this.focus;
+    }
+    setFocus(bool) {
+        this.focus = bool;
+    }
+    toggleFocus() {
+        this.focus = !this.focus;
     }
     getListIndex() {
         return this.index;
@@ -114,6 +120,9 @@ class Cell {
     }
     setReleInputInvalid(row, col, isAdd) {
         return this.releInputInvalid.handleRecord(row, col, isAdd);
+    }
+    clearReleInputInvalid() {
+        this.releInputInvalid.clearRecord();
     }
 }
 
