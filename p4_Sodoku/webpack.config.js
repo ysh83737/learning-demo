@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const config = {
     mode: 'development',
@@ -8,7 +9,7 @@ const config = {
     },
     output: {
         path: __dirname + '/build',
-        filename: '[name].js'
+        filename: '[name]_[hash].js'
     },
     devtool: 'cheap-module-eval-source-map',
     module: {
@@ -48,7 +49,8 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({template: './index.html'}),
-        new ExtractTextPlugin('style.css')
+        new ExtractTextPlugin('style_[hash].css'),
+        new CleanWebpackPlugin(['build/*.*'])
     ]
 };
 

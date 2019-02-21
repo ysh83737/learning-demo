@@ -8,11 +8,14 @@ class Timer {
         this.stopId = 0;
     }
     init(dom) {
-        let hourTextNode = document.createElement('span'),
+        let textNode = document.createElement('span'),
+            hourTextNode = document.createElement('span'),
             minTextNode = document.createElement('span'),
             secTextNode = document.createElement('span'),
             splitor1 = document.createElement('span'),
             splitor2 = null;
+        // textNode.className = 'timer tips';
+        // textNode.innerText = '用时：';
         hourTextNode.className = 'timer hour';
         minTextNode.className = 'timer min';
         secTextNode.className = 'timer sec';

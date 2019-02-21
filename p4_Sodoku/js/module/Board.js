@@ -15,6 +15,7 @@ class Board {
         this.cells = cells;
         this.focusLocation = [0, 0];
         this.dom = null;
+        this.clickable = false;
     }
     //初始化数独矩阵，生成完整的符合数独规则的表格
     init() {
@@ -255,13 +256,14 @@ class Board {
             cell.setReleFocus(false);
             cell.clearReleInputInvalid();
         });
+        this.focusLocation = [0, 0];
     }
     /**
      * 渲染数独表格
      * @param {object} dom 装载数独表格的容器
-     * @param {boolean} clickable 是否监听点击事件， 默认false
+     * @param {boolean} isAnswer 渲染的是否是答案， 默认false
      */
-    renderBoard(dom, clickable = false) {
+    renderBoard(dom, isAnswer = false) {
         let cells = this.cells;
         let listHtml = document.createElement('ul');
         listHtml.className = 'sudoku-list';
@@ -271,19 +273,24 @@ class Board {
         });
         dom.innerHTML = '';
         dom.appendChild(listHtml);
-        this.dom = dom;
-        if (clickable) {
+        if (!isAnswer) {
+            this.dom = dom;
             dom.addEventListener('click', (e) => {
-                let target = e.target;
-                let type = target.getAttribute('data-type');
-                console.log('type', type);
-                if (type === 'cell') {
-                    let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
-                    console.log('坐标==', row, col);
-                    this.handleInputFocus(row, col);
+                if (this.clickable) {
+                    let target = e.target;
+                    let type = target.getAttribute('data-type');
+                    console.log('type', type);
+                    if (type === 'cell') {
+                        let [row, col] = target.getAttribute('data-location').split('-').map(item => Number(item));
+                        console.log('坐标==', row, col);
+                        this.handleInputFocus(row, col);
+                    }
                 }
-            })
+            });
         };
+    }
+    setClickable(bool) {
+        this.clickable = bool;
     }
 }
 export default Board;

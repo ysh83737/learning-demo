@@ -53,16 +53,23 @@ class Sodoku {
     gameStart() {
         this.timer.startTimer();
         this.userInerface.changStatus(2);
+        this.table.setClickable(true);
     }
     gameStop() {
         this.timer.endTimer();
         this.userInerface.changStatus(3);
+        this.table.setClickable(false);
+    }
+    gameNext() {
+        this.getNewGame(this.level);
+        this.userInerface.changStatus(1);
     }
     gameReset() {
         this.userInerface.changStatus(1);
         this.table.resetAllInput();
         this.table.renderBoard(this.tableContainer);
         this.timer.resetTimer();
+        this.table.setClickable(false);
     }
     showAnswer() {
         this.answer.toggleAnswerShow();
@@ -73,7 +80,7 @@ class Sodoku {
                 this.gameStart();
                 break;
             case 'next':
-                this.getNewGame(this.level);
+                this.gameNext();
                 break;
             case 'level':
                 //暂不调难度

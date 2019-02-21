@@ -4,21 +4,18 @@ class AnswerDialog {
         this.container = null;
     }
     init(dom) {
-        let closeBtn = document.createElement('a'),
-            container = document.createElement('div');
+        let container = document.createElement('div');
         dom.className = 'answer-table';
-        closeBtn.className = 'close-btn';
-        container.className = 'answer-init';
-        dom.appendChild(closeBtn);
+        container.className = 'answer-container';
         dom.appendChild(container);
         this.dom = dom;
         this.container = container;
-        closeBtn.addEventListener('click', () => {
+        dom.addEventListener('click', () => {
             this.toggleAnswerShow();
         });
     }
     updateAnswer(table) {
-        table.renderBoard(this.container);
+        table.renderBoard(this.container, true);
     }
     getShowStatus() {
         return this.show;
